@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="">
+  <title>沉默者之说</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  <link rel="prefetch" href="//cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" as="script">
+  
+  
+  
+  <link rel="prefetch" href="//unpkg.com/valine/dist/Valine.min.js" as="script">
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="">
+      
+      <span class="navbar-logo-dsc">沉默者之说</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      Docker创建和部署
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2021-01-23T06:37:20.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2021-01-23</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>1.4k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/Docker/" class="post-meta-link">Docker</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <p>Docker中有两个重要的概念，一个是镜像，一个是容器。从仓库拉取的都是镜像，运行一个镜像就会生成一个容器，多次运行同一个镜像会生成多个不同的容器。</p>
+<h4 id="一些基本命令："><a href="#一些基本命令：" class="headerlink" title="一些基本命令："></a>一些基本命令：</h4><pre class="highlight"><span class="line">docker images <span class="comment">#列出所有镜像</span></span><br><span class="line">docker ps -a <span class="comment">#列出所有容器，去掉-a则只列出运行中的容器</span></span><br><span class="line">docker rm [container id/name] <span class="comment">#删除容器</span></span><br><span class="line">docker rmi [image id/name] <span class="comment">#删除镜像</span></span><br></pre>
+
+
+<h4 id="构建和运行容器"><a href="#构建和运行容器" class="headerlink" title="构建和运行容器"></a>构建和运行容器</h4><p>可以从一些基础镜像定制生成一些新镜像，这一步骤依赖Dockerfile文件，该文件内容定义了从哪个基础镜像构建，构建中的各种操作：</p>
+<pre class="highlight"><span class="line"><span class="keyword">FROM</span> python:<span class="number">3.6</span>.<span class="number">10</span> <span class="comment">#指定基础镜像</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">MAINTAINER</span> xiaobo <span class="string">&quot;xiaobo@finchina.com&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> <span class="built_in">echo</span> <span class="string">&#x27;deb http://ftp.cn.debian.org/debian buster main&#x27;</span> &gt; /etc/apt/sources.list <span class="comment">#在镜像中执行命令，修改环境</span></span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update -y &amp;&amp; \  </span></span><br><span class="line">    apt-get install -y python3-pip python3-dev</span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./requirements.txt /requirements.txt</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./torchvision-0.6.0+cpu-cp36-cp36m-linux_x86_64.whl /torchvision-0.6.0+cpu-cp36-cp36m-linux_x86_64.whl</span></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> ./torch-1.5.0+cpu-cp36-cp36m-linux_x86_64.whl /torch-1.5.0+cpu-cp36-cp36m-linux_x86_64.whl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> / <span class="comment">#切换镜像的工作目录，相当于cd</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> pip3 install torchvision-0.6.0+cpu-cp36-cp36m-linux_x86_64.whl</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> pip3 install torch-1.5.0+cpu-cp36-cp36m-linux_x86_64.whl</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> pip3 install --upgrade -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">COPY</span><span class="bash"> . / <span class="comment">#复制物理机文件到镜像中</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /zhao-tou-biao</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span><span class="bash"> [ <span class="string">&quot;python3&quot;</span> ] <span class="comment">#指定镜像运行时执行的程序</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">CMD</span><span class="bash"> [ <span class="string">&quot;ZhaoTouBiaoZiBiao_serve_requests.py&quot;</span> ] <span class="comment">#指定执行程序执行的脚本</span></span></span><br></pre>
+<p>在Dockerfile所处文件下运行以下命令构建新镜像：</p>
+<pre class="highlight"><span class="line">docker build -t [镜像名]:[TAG] .</span><br></pre>
+<p>-t指定镜像名，. 指定从当前目录Dockerfile构建</p>
+<p>如果要更新镜像，最好从上一版本的镜像进行构建，这样修改最少。</p>
+<p>构建后运行：</p>
+<pre class="highlight"><span class="line">docker run -it -p [物理机端口]:[容器内端口] -v [物理机文件夹]:[容器内文件夹] [镜像名]:[TAG]</span><br></pre>
+<p>-p进行端口映射，-it指定交互和命令行，一般也可以用-d指定后台运行。-v参数指定一个本地文件夹映射到容器内的文件夹，实现物理机与容器内文件的互读。容器可以通过stop命令停止，如果是-it运行的，ctrl-C退出命令行即停止容器：</p>
+<pre class="highlight"><span class="line">docker stop [container id/name]</span><br></pre>
+<p>停止后的容器不会被删除，可以通过restart或者start，命令重新启动：</p>
+<pre class="highlight"><span class="line">docker start [container id&#x2F;name]</span><br></pre>
+<p>也可以加上-i命令，命令行执行。</p>
+<p>有时候需要查看容器内文件（例如日志），可以用docker exec命令执行容器内的一些命令来返回信息：</p>
+<pre class="highlight"><span class="line">docker <span class="built_in">exec</span> [container id/name] ls [文件夹]</span><br><span class="line">docker <span class="built_in">exec</span> [container id/name] cat [文件]</span><br><span class="line">docker -it <span class="built_in">exec</span> [container id/name] /bin/bash</span><br></pre>
+<p>有的时候创建的镜像运行时启动的脚本存在bug，使得容器一启动就停止，无法通过exec命令启动bash界面调试，可以重新run一下镜像生成一个新容器调试，但通过指定entrypoint参数修改默认运行行为：</p>
+<pre class="highlight"><span class="line">docker run -it --entrypoint=/bin/bash [镜像名]:[TAG]</span><br></pre>
+<p>有时候需要将运行中的容器构建成镜像，将容器中的修改永久保存下来，可以用commit命令：</p>
+<pre class="highlight"><span class="line">docker commit [container id/name] [镜像名]:[TAG]</span><br></pre>
+
+
+<h4 id="远程拉取和推送"><a href="#远程拉取和推送" class="headerlink" title="远程拉取和推送"></a>远程拉取和推送</h4><p>为了方便其他用户(例如运维)使用和部署你的镜像，最好使用仓库进行版本控制，将镜像推送到仓库，其他用户拉取到本地。</p>
+<p>首先需要先把本地的镜像名改名与远程仓库地址一致</p>
+<pre class="highlight"><span class="line">docker tag SOURCE_IMAGE[:TAG] ip&#x2F;imagename[:TAG]</span><br></pre>
+<p>SOURCE_IMAGE[:TAG]是本地镜像名，上述操作会创建一个新镜像，原来名字的镜像并不会消失（可能只是有两个名字指向同一个镜像？）</p>
+<p>推送前要先登录仓库账号，</p>
+<pre class="highlight"><span class="line">docker login --username=XXXX [ip]</span><br></pre>
+<p>登录时可能会报connection refused的，找到的一个解决方法是在本地docker.service文件中加入–insecure-registry=10.17.205.151选项，可以参考下面的链接：</p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844904122886389767">https://juejin.cn/post/6844904122886389767</a></p>
+<p>之后再把自己的镜像推送：</p>
+<pre class="highlight"><span class="line">docker push ip/imagename[:TAG]</span><br></pre>
+<p>本地抓取：</p>
+<pre class="highlight"><span class="line">docker pull ip/imagename[:TAG]</span><br></pre>
+
+
+<h4 id="镜像过大的问题"><a href="#镜像过大的问题" class="headerlink" title="镜像过大的问题"></a>镜像过大的问题</h4><p>在实践中发现，即使操作删除文件操作，镜像不会变小，这是因为每次更改都会在镜像中形成一个新的层叠在之前的层上，每一个层都对应一个修改历史，可以用docker history来查看。如果要减小镜像大小，一个就是要尽量减小层数，例如在Dockerfile中多个命令写在一起用一个RUN引导。</p>
+<p>对于已经构建好的镜像想压缩可以参考这篇文章打包容器内容再导入一个新的镜像里。但这种方式会导致镜像的工作目录、entrypoint、cmd等配置丢失，需要重新从一个dockerfile里配置。</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/happyeric/p/11432830.html">https://www.cnblogs.com/happyeric/p/11432830.html</a></p>
+<h4 id="Linux下共享文件夹挂载问题"><a href="#Linux下共享文件夹挂载问题" class="headerlink" title="Linux下共享文件夹挂载问题"></a>Linux下共享文件夹挂载问题</h4><p>windows下可以直接通过ip加路径访问windows服务器上的文件，但是linux不可以，可以通过挂载的方式间接实现这个功能，例如招投标公告文件：</p>
+<pre class="highlight"><span class="line">mount -t cifs //10.17.205.205/remotefile /localfile -o domain=XX,username=XX,password=XX</span><br></pre>
+<p>挂载到/localfile下，通过访问这个文件夹就可以实现对共享文件的读取。</p>
+<p>可以设置每次开机重启后自动挂载，在/etc/fstab文件下加上以下命令：</p>
+<pre class="highlight"><span class="line">//10.17.205.205/remotefile /localfile cifs username=xx,password=xx,gid=0,uid=0,file_mode=0777,dir_mode=0777 0 0</span><br></pre>
+<p>其中gid和uid是用户的信息，0是root用户的值，0777代表只给只读权限。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://example.com/about">Bob</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://example.com/2021/01/23/Docker%E5%88%9B%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2/">http://example.com/2021/01/23/Docker%E5%88%9B%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2021/01/23/LSTM的一些tips/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">LSTM的一些tips </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2021/01/23/hello-world/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">Hello World </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content comment-card" style="margin-top: 16px;">
+  <div class="comment-card-title">评论</div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4%EF%BC%9A"><span class="toc-text">一些基本命令：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E5%92%8C%E8%BF%90%E8%A1%8C%E5%AE%B9%E5%99%A8"><span class="toc-text">构建和运行容器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%8B%89%E5%8F%96%E5%92%8C%E6%8E%A8%E9%80%81"><span class="toc-text">远程拉取和推送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%95%9C%E5%83%8F%E8%BF%87%E5%A4%A7%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">镜像过大的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Linux%E4%B8%8B%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%8C%82%E8%BD%BD%E9%97%AE%E9%A2%98"><span class="toc-text">Linux下共享文件夹挂载问题</span></a></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/imgs/AvatarMaker.png" class="author-img">
+
+<p class="author-name">Bob</p>
+<p class="author-description">Fresh NLPer</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>8</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>11</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4%EF%BC%9A"><span class="toc-text">一些基本命令：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E5%92%8C%E8%BF%90%E8%A1%8C%E5%AE%B9%E5%99%A8"><span class="toc-text">构建和运行容器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%8B%89%E5%8F%96%E5%92%8C%E6%8E%A8%E9%80%81"><span class="toc-text">远程拉取和推送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%95%9C%E5%83%8F%E8%BF%87%E5%A4%A7%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">镜像过大的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Linux%E4%B8%8B%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%8C%82%E8%BD%BD%E9%97%AE%E9%A2%98"><span class="toc-text">Linux下共享文件夹挂载问题</span></a></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\git" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="\tags\Hexo" title="Hexo"><div class="tags-list-item">Hexo</div></a>
+    
+    <a href="\tags\github" title="github"><div class="tags-list-item">github</div></a>
+    
+    <a href="\tags\self-attention" title="self-attention"><div class="tags-list-item">self-attention</div></a>
+    
+    <a href="\tags\transformer" title="transformer"><div class="tags-list-item">transformer</div></a>
+    
+    <a href="\tags\NER" title="NER"><div class="tags-list-item">NER</div></a>
+    
+    <a href="\tags\知识图谱" title="知识图谱"><div class="tags-list-item">知识图谱</div></a>
+    
+    <a href="\tags\Gremlin" title="Gremlin"><div class="tags-list-item">Gremlin</div></a>
+    
+    <a href="\tags\Janusgraph" title="Janusgraph"><div class="tags-list-item">Janusgraph</div></a>
+    
+    <a href="\tags\Docker" title="Docker"><div class="tags-list-item">Docker</div></a>
+    
+    <a href="\tags\LSTM 时序神经网络" title="LSTM 时序神经网络"><div class="tags-list-item">LSTM 时序神经网络</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%9F%BA%E6%9C%AC%E5%91%BD%E4%BB%A4%EF%BC%9A"><span class="toc-text">一些基本命令：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E5%92%8C%E8%BF%90%E8%A1%8C%E5%AE%B9%E5%99%A8"><span class="toc-text">构建和运行容器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%8B%89%E5%8F%96%E5%92%8C%E6%8E%A8%E9%80%81"><span class="toc-text">远程拉取和推送</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%95%9C%E5%83%8F%E8%BF%87%E5%A4%A7%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">镜像过大的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Linux%E4%B8%8B%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9%E6%8C%82%E8%BD%BD%E9%97%AE%E9%A2%98"><span class="toc-text">Linux下共享文件夹挂载问题</span></a></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/TENER Adapting Transformer Encoder for Named Entity Recognition 读书笔记/"><div class="recent-posts-item-content">TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/Janusgraph Gremlin 使用/"><div class="recent-posts-item-content">Janusgraph和Gremlin的一些使用经验</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/LSTM的一些tips/"><div class="recent-posts-item-content">LSTM的一些tips</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/Docker创建和部署/"><div class="recent-posts-item-content">Docker创建和部署</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2021 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">沉默者之说 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+
+  
+  
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  
+
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  <script>loadScript("/js/lib/busuanzi.min.js")</script>
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

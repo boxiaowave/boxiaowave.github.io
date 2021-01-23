@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="">
+  <title>沉默者之说</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  <link rel="prefetch" href="//cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" as="script">
+  
+  
+  
+  <link rel="prefetch" href="//unpkg.com/valine/dist/Valine.min.js" as="script">
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="">
+      
+      <span class="navbar-logo-dsc">沉默者之说</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<div class="card">
+  
+  <article class="card card-content">
+    <a href="/2021/01/23/TENER Adapting Transformer Encoder for Named Entity Recognition 读书笔记/">
+      <h1 class="post-title">
+        TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记
+      </h1>
+    </a>
+    <div class="card-excerpt">
+      
+       Abstract：
+Transformer在NER中的效果没有它在其他任务中表现...
+      
+    </div>
+    <div class="card-post-footer">
+      <div class="post-meta">
+        <time datetime="2021-01-23T14:02:48.000Z" style="display: flex; align-items: center;">
+          <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+          <span>2021-01-23</span>
+        </time>
+        
+        
+        <span class="dot"></span>
+        <span>914 字</span>
+        
+      </div>
+      <a href="/2021/01/23/TENER%20Adapting%20Transformer%20Encoder%20for%20Named%20Entity%20Recognition%20%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">继续阅读 </a>
+    </div>
+  </article>
+</div>
+
+<div class="card">
+  
+  <article class="card card-content">
+    <a href="/2021/01/23/Janusgraph Gremlin 使用/">
+      <h1 class="post-title">
+        Janusgraph和Gremlin的一些使用经验
+      </h1>
+    </a>
+    <div class="card-excerpt">
+      
+      图数据的schema是定义一张图，而非定义一个vertex的。在Mysql中，我们通常将建立一张表定义为创建一个schema，而在JanusGraph中，一个Graph用于一个schema。
+      
+    </div>
+    <div class="card-post-footer">
+      <div class="post-meta">
+        <time datetime="2021-01-23T08:32:55.000Z" style="display: flex; align-items: center;">
+          <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+          <span>2021-01-23</span>
+        </time>
+        
+        
+        <span class="dot"></span>
+        <span>4.7k 字</span>
+        
+      </div>
+      <a href="/2021/01/23/Janusgraph%20Gremlin%20%E4%BD%BF%E7%94%A8/">继续阅读 </a>
+    </div>
+  </article>
+</div>
+
+<div class="card">
+  
+  <article class="card card-content">
+    <a href="/2021/01/23/LSTM的一些tips/">
+      <h1 class="post-title">
+        LSTM的一些tips
+      </h1>
+    </a>
+    <div class="card-excerpt">
+      
+      初始隐向量的初始化是每次forward开始时都会进行，网上的一些说法时可以每次都初始化为0向量，也有部分代码使用高斯分布采样方法。
+pytorch中LSTM输出分为两部分，output，(hn, cn)
+
+      
+    </div>
+    <div class="card-post-footer">
+      <div class="post-meta">
+        <time datetime="2021-01-23T08:27:00.000Z" style="display: flex; align-items: center;">
+          <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+          <span>2021-01-23</span>
+        </time>
+        
+        
+        <span class="dot"></span>
+        <span>195 字</span>
+        
+      </div>
+      <a href="/2021/01/23/LSTM%E7%9A%84%E4%B8%80%E4%BA%9Btips/">继续阅读 </a>
+    </div>
+  </article>
+</div>
+
+<div class="card">
+  
+  <article class="card card-content">
+    <a href="/2021/01/23/Docker创建和部署/">
+      <h1 class="post-title">
+        Docker创建和部署
+      </h1>
+    </a>
+    <div class="card-excerpt">
+      
+      Docker中有两个重要的概念，一个是镜像，一个是容器。从仓库拉取的都是镜像，运行一个镜像就会生成一个容器，多次运行同一个镜像会生成多个不同的容器。
+
+      
+    </div>
+    <div class="card-post-footer">
+      <div class="post-meta">
+        <time datetime="2021-01-23T06:37:20.000Z" style="display: flex; align-items: center;">
+          <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+          <span>2021-01-23</span>
+        </time>
+        
+        
+        <span class="dot"></span>
+        <span>1.4k 字</span>
+        
+      </div>
+      <a href="/2021/01/23/Docker%E5%88%9B%E5%BB%BA%E5%92%8C%E9%83%A8%E7%BD%B2/">继续阅读 </a>
+    </div>
+  </article>
+</div>
+
+<div class="card">
+  
+  <article class="card card-content">
+    <a href="/2021/01/23/hello-world/">
+      <h1 class="post-title">
+        Hello World
+      </h1>
+    </a>
+    <div class="card-excerpt">
+      
+      Welcome to Hexo! This is your very first post. Check 
+      
+    </div>
+    <div class="card-post-footer">
+      <div class="post-meta">
+        <time datetime="2021-01-23T05:59:46.911Z" style="display: flex; align-items: center;">
+          <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+          <span>2021-01-23</span>
+        </time>
+        
+        
+        <span class="dot"></span>
+        <span>75 字</span>
+        
+      </div>
+      <a href="/2021/01/23/hello-world/">继续阅读 </a>
+    </div>
+  </article>
+</div>
+
+<div class="card">
+  
+  <article class="card card-content">
+    <a href="/2017/02/08/git rebase操作减少commits/">
+      <h1 class="post-title">
+        git rebase操作减少commits
+      </h1>
+    </a>
+    <div class="card-excerpt">
+      
+       合并commits
+在使用git的使用,难免有时候会提交一些多余的commi...
+      
+    </div>
+    <div class="card-post-footer">
+      <div class="post-meta">
+        <time datetime="2017-02-08T23:28:54.000Z" style="display: flex; align-items: center;">
+          <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+          <span>2017-02-08</span>
+        </time>
+        
+        
+        <span class="dot"></span>
+        <span>1k 字</span>
+        
+      </div>
+      <a href="/2017/02/08/git%20rebase%E6%93%8D%E4%BD%9C%E5%87%8F%E5%B0%91commits/">继续阅读 </a>
+    </div>
+  </article>
+</div>
+
+<div class="card">
+  
+  <article class="card card-content">
+    <a href="/2016/12/17/git的配置/">
+      <h1 class="post-title">
+        Git和Github安装与配置
+      </h1>
+    </a>
+    <div class="card-excerpt">
+      
+       git的本地设置
+linux和osx都是自带git软件的，而windows下需要...
+      
+    </div>
+    <div class="card-post-footer">
+      <div class="post-meta">
+        <time datetime="2016-12-17T18:36:36.000Z" style="display: flex; align-items: center;">
+          <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+          <span>2016-12-17</span>
+        </time>
+        
+        
+        <span class="dot"></span>
+        <span>522 字</span>
+        
+      </div>
+      <a href="/2016/12/17/git%E7%9A%84%E9%85%8D%E7%BD%AE/">继续阅读 </a>
+    </div>
+  </article>
+</div>
+
+<div class="card">
+  
+  <article class="card card-content">
+    <a href="/2016/12/16/hexo博客搭建配置/">
+      <h1 class="post-title">
+        hexo博客搭建配置
+      </h1>
+    </a>
+    <div class="card-excerpt">
+      
+      本博客基于Hexo框架搭建.
+
+      
+    </div>
+    <div class="card-post-footer">
+      <div class="post-meta">
+        <time datetime="2016-12-16T19:19:08.000Z" style="display: flex; align-items: center;">
+          <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+          <span>2016-12-16</span>
+        </time>
+        
+        
+        <span class="dot"></span>
+        <span>522 字</span>
+        
+      </div>
+      <a href="/2016/12/16/hexo%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E9%85%8D%E7%BD%AE/">继续阅读 </a>
+    </div>
+  </article>
+</div>
+
+</main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/imgs/AvatarMaker.png" class="author-img">
+
+<p class="author-name">Bob</p>
+<p class="author-description">Fresh NLPer</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>8</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>11</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\git" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="\tags\Hexo" title="Hexo"><div class="tags-list-item">Hexo</div></a>
+    
+    <a href="\tags\github" title="github"><div class="tags-list-item">github</div></a>
+    
+    <a href="\tags\self-attention" title="self-attention"><div class="tags-list-item">self-attention</div></a>
+    
+    <a href="\tags\transformer" title="transformer"><div class="tags-list-item">transformer</div></a>
+    
+    <a href="\tags\NER" title="NER"><div class="tags-list-item">NER</div></a>
+    
+    <a href="\tags\知识图谱" title="知识图谱"><div class="tags-list-item">知识图谱</div></a>
+    
+    <a href="\tags\Gremlin" title="Gremlin"><div class="tags-list-item">Gremlin</div></a>
+    
+    <a href="\tags\Janusgraph" title="Janusgraph"><div class="tags-list-item">Janusgraph</div></a>
+    
+    <a href="\tags\Docker" title="Docker"><div class="tags-list-item">Docker</div></a>
+    
+    <a href="\tags\LSTM 时序神经网络" title="LSTM 时序神经网络"><div class="tags-list-item">LSTM 时序神经网络</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+  <article class="card card-content widescreen-archive">
+    <div class="archive-card">
+  <div class="archive-card-header"><i class="iconfont icon-wodebaobiao" style="padding-right: 2px;"></i>归档</div>
+  <div class="archive-card-list">
+    
+    
+    
+      
+        
+        
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+          <a href="/archives/2021" class="archive-card-list-item">
+              2021
+              <span class="archive-card-list-item-badge">5</span>
+          </a>
+        
+        
+        
+      
+    
+      
+        
+          <a href="/archives/2017" class="archive-card-list-item">
+              2017
+              <span class="archive-card-list-item-badge">1</span>
+          </a>
+        
+        
+        
+      
+    
+      
+        
+      
+    
+    
+      <a href="/archives/2016" class="archive-card-list-item">
+          2016
+          <span class="archive-card-list-item-badge">2</span>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/TENER Adapting Transformer Encoder for Named Entity Recognition 读书笔记/"><div class="recent-posts-item-content">TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/Janusgraph Gremlin 使用/"><div class="recent-posts-item-content">Janusgraph和Gremlin的一些使用经验</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/LSTM的一些tips/"><div class="recent-posts-item-content">LSTM的一些tips</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/Docker创建和部署/"><div class="recent-posts-item-content">Docker创建和部署</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="archive-card">
+  <div class="archive-card-header"><i class="iconfont icon-wodebaobiao" style="padding-right: 2px;"></i>归档</div>
+  <div class="archive-card-list">
+    
+    
+    
+      
+        
+        
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+      
+    
+      
+        
+          <a href="/archives/2021" class="archive-card-list-item">
+              2021
+              <span class="archive-card-list-item-badge">5</span>
+          </a>
+        
+        
+        
+      
+    
+      
+        
+          <a href="/archives/2017" class="archive-card-list-item">
+              2017
+              <span class="archive-card-list-item-badge">1</span>
+          </a>
+        
+        
+        
+      
+    
+      
+        
+      
+    
+    
+      <a href="/archives/2016" class="archive-card-list-item">
+          2016
+          <span class="archive-card-list-item-badge">2</span>
+      </a>
+    
+  </div>
+</div>
+  </article>
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2021 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">沉默者之说 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  <script>loadScript("/js/lib/busuanzi.min.js")</script>
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

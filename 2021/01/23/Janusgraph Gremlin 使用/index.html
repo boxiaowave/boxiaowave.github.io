@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="">
+  <title>沉默者之说</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  <link rel="prefetch" href="//cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" as="script">
+  
+  
+  
+  <link rel="prefetch" href="//unpkg.com/valine/dist/Valine.min.js" as="script">
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="">
+      
+      <span class="navbar-logo-dsc">沉默者之说</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      Janusgraph和Gremlin的一些使用经验
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2021-01-23T08:32:55.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2021-01-23</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>4.7k 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/Janusgraph/" class="post-meta-link">Janusgraph</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/Gremlin/" class="post-meta-link">Gremlin</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/知识图谱/" class="post-meta-link">知识图谱</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <p><strong>图数据的schema是定义一张图，而非定义一个vertex的。在Mysql中，我们通常将建立一张表定义为创建一个schema，而在JanusGraph中，一个Graph用于一个schema。</strong></p>
+<p>组成结构如下：</p>
+<p>JanusGraph Schema</p>
+<p>​      |</p>
+<p>​      |-----------Vertex Lables</p>
+<p>​      |</p>
+<p>​      |-----------Property Keys</p>
+<p>​      |</p>
+<p>​      |-----------Edge Labels</p>
+<p>Schema Type如edge label, vertex label及property key在元素首次创建时被赋予元素，且不能修改。</p>
+<h2 id="schema创建"><a class="markdownIt-Anchor" href="#schema创建"></a> Schema创建</h2>
+<h3 id="automatic-schema-maker自动创建schmea"><a class="markdownIt-Anchor" href="#automatic-schema-maker自动创建schmea"></a> Automatic Schema Maker（自动创建schmea）</h3>
+<p>如果edge label, property key和vertex label没有被显式创建，则会在第一次使用时通过默认<strong>DefaultSchemaMaker</strong>创建。</p>
+<p>默认的，隐式创建的edge label的multiplicity被设置为MULTI；隐式创建的property key设置为SINGLE，value数据类型为Object.class。用户可以通过实现和注册自己的DefaultSchemaMaker来自定义。</p>
+<p>强烈建议用户显式创建，并配置系统为不支持隐式创建。</p>
+<p>JanusGraph的schema可以显式或隐式创建，推荐用户采用显式定义的方式。JanusGraph的schema是可以在使用过程中修改的，而且不会导致服务宕机，也不会拖慢查询速度。</p>
+<pre class="highlight"><span class="line">schema.default&#x3D;none</span><br></pre>
+<h3 id="edge-label-multiplicity边的标签多样性"><a class="markdownIt-Anchor" href="#edge-label-multiplicity边的标签多样性"></a> Edge Label Multiplicity（边的标签多样性）</h3>
+<ul>
+<li>MULTI</li>
+</ul>
+<p>在一对vertex间可以有任意多个同样label的edge。</p>
+<ul>
+<li>SIMPLE</li>
+</ul>
+<p>在一对vertex间最多只能有一个同样label的edge。</p>
+<ul>
+<li>MANY2ONE</li>
+</ul>
+<p>图中任意一个Vertex最多有一个出度（outgoing）edge，和不限个数的入度（incoming）edge，注意：这些对edge的限制对同一个label生效。</p>
+<ul>
+<li>ONE2MANY</li>
+</ul>
+<p>图中任意一个Vertex最多有一个入度（incoming）edge，和不限个数的出度（outgoing）edge，注意：这些对edge的限制对同一个label生效。</p>
+<ul>
+<li>ONE2ONE</li>
+</ul>
+<p>某vertex中具有同样Label的edge，只能有最多一个incoming edge和最多一个outgoing edge。</p>
+<p>在janusgraph下打开gremlin终端，用以下命令打开一个图和图遍历源：</p>
+<pre class="highlight"><span class="line">graph &#x3D; JanusGraphFactory.open(&quot;conf&#x2F;xx.properties&quot;)</span><br><span class="line">g &#x3D; graph.traversal()</span><br></pre>
+<p>在gremlin终端下远程gremlin-server，其中remote.yaml文件配置了server的ip和端口信息，如果要发送命令远程查询server，要在命令前加:&gt;, session很重要，否则命令中的变量只在当前行生效</p>
+<pre class="highlight"><span class="line">:remote connect tinkerpop.server conf&#x2F;remote.yaml session</span><br><span class="line">：remote console</span><br></pre>
+<p>为了定制图的结构即schema，首先要打开图管理器：</p>
+<pre class="highlight"><span class="line">mgmt &#x3D; graph.openManagement()</span><br><span class="line">mgmt.printSchema()</span><br></pre>
+<p>python下连接服务器发送查询语句：</p>
+<pre class="highlight"><span class="line">from gremlin_python.driver import client</span><br><span class="line">client &#x3D; client.Client(&#39;ws:&#x2F;&#x2F;10.17.207.97:8182&#x2F;gremlin&#39;,&#39;g&#39;)</span><br><span class="line">gsql&#x3D;&quot;mgmt &#x3D; graph.openManagement()\n &quot;\</span><br><span class="line">        &quot;mgmt.makeEdgeLabel(&#39;案件涉及&#39;).make()\n &quot;\</span><br><span class="line">            &quot;mgmt.commit()\n &quot;</span><br><span class="line">client.submit(gsql)</span><br></pre>
+<p>The definition of an edge label, property key, or vertex label cannot be changed once its committed into the graph. However, the names of schema elements can be changed via <code>JanusGraphManagement.changeName(JanusGraphSchemaElement, String)</code> as shown in the following example where the property key <code>place</code> is renamed to <code>location</code>.</p>
+<pre class="highlight"><span class="line">mgmt = graph.openManagement() </span><br><span class="line">place = mgmt.getPropertyKey(<span class="string">&#x27;place&#x27;</span>)</span><br><span class="line">mgmt.changeName(place, <span class="string">&#x27;location&#x27;</span>) </span><br><span class="line">mgmt.commit()</span><br></pre>
+<p>增删改查：</p>
+<pre class="highlight"><span class="line">删除顶点：g.V().drop()</span><br><span class="line">增加顶点：g.addV().property()</span><br><span class="line">增加边： g.addE().from(vertex).to(lastvertex).property(&quot;xx&quot;,&quot;xx&quot;).next()</span><br></pre>
+<h2 id="janusgraph大数据导入"><a class="markdownIt-Anchor" href="#janusgraph大数据导入"></a> Janusgraph大数据导入</h2>
+<h3 id="batch-loading"><a class="markdownIt-Anchor" href="#batch-loading"></a> Batch Loading</h3>
+<p>Enabling the <code>storage.batch-loading</code> configuration option will have the biggest positive impact on bulk loading times for most applications. Enabling batch loading disables JanusGraph internal consistency checks in a number of places. <strong>Most importantly, it disables locking. In other words, JanusGraph assumes that the data to be loaded into JanusGraph is consistent with the graph and hence disables its own checks in the interest of performance.</strong></p>
+<p>In many bulk loading scenarios it is significantly cheaper to ensure data consistency prior to loading the data then ensuring data consistency while loading it into the database. The <code>storage.batch-loading</code> configuration option exists because of this observation.</p>
+<p><strong>Important</strong>: Enabling <code>storage.batch-loading</code> requires the user to ensure that the loaded data is internally consistent and consistent with any data already in the graph. In particular, concurrent type creation can lead to severe data integrity issues when batch loading is enabled. Hence, we <strong>strongly</strong> encourage disabling automatic type creation by setting <code>schema.default = none</code> in the graph configuration.</p>
+<h3 id="optimizing-id-allocation"><a class="markdownIt-Anchor" href="#optimizing-id-allocation"></a> Optimizing ID Allocation</h3>
+<h4 id="id-block-size"><a class="markdownIt-Anchor" href="#id-block-size"></a> ID Block Size</h4>
+<p>Each newly added vertex or edge is assigned a unique id. JanusGraph’s id pool manager acquires ids in blocks for a particular JanusGraph instance. The id block acquisition process is expensive because it needs to guarantee globally unique assignment of blocks. Increasing <code>ids.block-size</code> reduces the number of acquisitions but potentially leaves many ids unassigned and hence wasted. For transactional workloads the default block size is reasonable, but during bulk loading vertices and edges are added much more frequently and in rapid succession. Hence, it is generally advisable to increase the block size by a factor of 10 or more depending on the number of vertices to be added per machine.</p>
+<p><strong>Rule of thumb</strong>: Set <code>ids.block-size</code> to the number of vertices you expect to add per JanusGraph instance per hour.</p>
+<p><strong>Important:</strong> All JanusGraph instances MUST be configured with the same value for <code>ids.block-size</code> to ensure proper id allocation. Hence, be careful to shut down all JanusGraph instances prior to changing this value.</p>
+<h3 id="optimizing-writes-and-reads"><a class="markdownIt-Anchor" href="#optimizing-writes-and-reads"></a> Optimizing Writes and Reads</h3>
+<h4 id="buffer-size"><a class="markdownIt-Anchor" href="#buffer-size"></a> Buffer Size</h4>
+<p>JanusGraph buffers writes and executes them in small batches to reduce the number of requests against the storage backend. <strong>The size of these batches is controlled by <code>storage.buffer-size</code>. When executing a lot of writes in a short period of time, it is possible that the storage backend can become overloaded with write requests. In that case, increasing <code>storage.buffer-size</code> can avoid failure by increasing the number of writes per request and thereby lowering the number of requests.</strong></p>
+<p>However, <strong>increasing the buffer size increases the latency of the write request and its likelihood of failure</strong>. Hence, it is not advisable to increase this setting for transactional loads and one should carefully experiment with this setting during bulk loading.</p>
+<h4 id="parallelizing-the-load"><a class="markdownIt-Anchor" href="#parallelizing-the-load"></a> Parallelizing the Load</h4>
+<p>By parallelizing the bulk loading across multiple machines, the load time can be greatly reduced if JanusGraph’s storage backend cluster is large enough to serve the additional requests. This is essentially the approach <a target="_blank" rel="noopener" href="https://docs.janusgraph.org/advanced-topics/hadoop/">JanusGraph with TinkerPop’s Hadoop-Gremlin</a> takes to bulk loading data into JanusGraph <strong>using MapReduce.</strong></p>
+<h3 id="janusgraph支持olap"><a class="markdownIt-Anchor" href="#janusgraph支持olap"></a> Janusgraph支持OLAP</h3>
+<p>OLAP是联机分析处理<br />
+OLTP是联机事务处理<br />
+OLAP是数据仓库系统的主要应用，支持zhi复杂的分析操作，侧重决策支持，并且提供直观、易懂的查询结果。<br />
+OLTP是传统的关系型数据库的主要应用模式，主要面对基本的、日常的事务处理；比如数据库记录的增、删、改、查。</p>
+<h4 id="configuring-hadoop-for-running-olap"><a class="markdownIt-Anchor" href="#configuring-hadoop-for-running-olap"></a> Configuring Hadoop for Running OLAP</h4>
+<p>For running OLAP queries from the Gremlin Console, You will need to add the Hadoop configuration directory into the <code>CLASSPATH</code>, and the configuration directory needs to point to a live Hadoop cluster.</p>
+<p>Once you have a Hadoop cluster up and running, we will need to specify the Hadoop configuration files in the <code>CLASSPATH</code>. The below document expects that you have those configuration files located under <code>/etc/hadoop/conf</code>.</p>
+<pre class="highlight"><span class="line">export HADOOP_CONF_DIR&#x3D;&#x2F;etc&#x2F;hadoop&#x2F;conf</span><br><span class="line">export CLASSPATH&#x3D;$HADOOP_CONF_DIR</span><br></pre>
+<p>Once the path to Hadoop configuration has been added to the <code>CLASSPATH</code>, we can verify whether the Gremlin Console can access the Hadoop cluster by following these quick steps:</p>
+<pre class="highlight"><span class="line">gremlin&gt; hdfs</span><br><span class="line">&#x3D;&#x3D;&gt;storage[org.apache.hadoop.fs.LocalFileSystem@65bb9029] &#x2F;&#x2F; BAD</span><br><span class="line"></span><br><span class="line">gremlin&gt; hdfs</span><br><span class="line">&#x3D;&#x3D;&gt;storage[DFS[DFSClient[clientName&#x3D;DFSClient_NONMAPREDUCE_1229457199_1, ugi&#x3D;user (auth:SIMPLE)]]] &#x2F;&#x2F; GOOD</span><br></pre>
+<p>下面是一个简单的用spark进行OLAP的例子，read-hbase.properties是读写配置，配置hbase和spark，指定从hbase读取的图数据库表名</p>
+<pre class="highlight"><span class="line">gremlin&gt; graph &#x3D; GraphFactory.open(&#39;conf&#x2F;hadoop-graph&#x2F;read-hbase.properties&#39;)</span><br><span class="line">&#x3D;&#x3D;&gt;hadoopgraph[hbaseinputformat-&gt;gryooutputformat]</span><br><span class="line">&#x2F;&#x2F; 2. Configure the traversal to run with Spark</span><br><span class="line">gremlin&gt; g &#x3D; graph.traversal().withComputer(SparkGraphComputer)</span><br><span class="line">&#x3D;&#x3D;&gt;graphtraversalsource[hadoopgraph[hbaseinputformat-&gt;gryooutputformat], sparkgraphcomputer]</span><br><span class="line">gremlin&gt; g.V().count()</span><br><span class="line">&#x3D;&#x3D;&gt;11121</span><br></pre>
+<h3 id="tinkerpop-gremlin中关于bulkload相关的内容"><a class="markdownIt-Anchor" href="#tinkerpop-gremlin中关于bulkload相关的内容"></a> Tinkerpop gremlin中关于bulkload相关的内容：</h3>
+<h4 id="bulk-import-export"><a class="markdownIt-Anchor" href="#bulk-import-export"></a> Bulk Import Export</h4>
+<p>When it comes to doing “bulk” operations, the diverse nature of the available graph databases and their specific capabilities, prevents TinkerPop from doing a good job of generalizing that capability well. TinkerPop thus maintains two positions on the concept of import and export:</p>
+<ol>
+<li>TinkerPop refers users to the bulk import/export facilities of specific graph providers as they tend to be more efficient and easier to use than the options TinkerPop has tried to generalize in the past.</li>
+<li>TinkerPop encourages graph providers to expose those capabilities via <code>g.io()</code> and the <code>IoStep</code> by way of a <code>TraversalStrategy</code>.</li>
+</ol>
+<p>That said, for graph providers that don’t have a special bulk loading feature, they can either <strong>rely on the default OLTP (single-threaded)</strong> <code>GraphReader</code> and <code>GraphWriter</code> options that are embedded in <code>IoStep</code> or <strong>get a basic bulk loader from TinkerPop using the <a target="_blank" rel="noopener" href="http://tinkerpop.apache.org/docs/3.4.6/reference/#clonevertexprogram">CloneVertexProgram</a></strong>. Simply provide a <code>InputFormat</code> and <code>OutputFormat</code> that can be referenced by a <code>HadoopGraph</code> instance.</p>
+<h4 id="简单的io-step"><a class="markdownIt-Anchor" href="#简单的io-step"></a> 简单的IO-step</h4>
+<p>简单的io-step手段：</p>
+<p>The task of importing and exporting the data of <code>Graph</code> instances is the job of the <code>io()</code>-step. By default, TinkerPop supports three formats for importing and exporting graph data in <a target="_blank" rel="noopener" href="http://tinkerpop.apache.org/docs/current/reference/#graphml">GraphML</a>, <a target="_blank" rel="noopener" href="http://tinkerpop.apache.org/docs/current/reference/#graphson">GraphSON</a>, and <a target="_blank" rel="noopener" href="http://tinkerpop.apache.org/docs/current/reference/#gryo">Gryo</a>.</p>
+<pre class="highlight"><span class="line">g.io(&quot;graph.json&quot;).read().iterate() #读入</span><br><span class="line">g.io(&quot;graph.json&quot;).write().iterate() #导出</span><br></pre>
+<h3 id="clonevertexprogram"><a class="markdownIt-Anchor" href="#clonevertexprogram"></a> CloneVertexProgram</h3>
+<p>The <code>CloneVertexProgram</code> (known in versions prior to 3.2.10 as <code>BulkDumperVertexProgram</code>) copies a whole graph from any graph <code>InputFormat</code> to any graph <code>OutputFormat</code>. TinkerPop provides the following:</p>
+<ul>
+<li><code>OutputFormat</code>
+<ul>
+<li><code>GraphSONOutputFormat</code></li>
+<li><code>GryoOutputFormat</code></li>
+<li><code>ScriptOutputFormat</code></li>
+</ul>
+</li>
+<li><code>InputFormat</code>
+<ul>
+<li><code>GraphSONInputFormat</code></li>
+<li><code>GryoInputFormat</code></li>
+<li><code>ScriptInputFormat</code>).</li>
+</ul>
+</li>
+</ul>
+<p>Graph Providers should consider writing their own <code>OutputFormat</code> and <code>InputFormat</code> which would allow bulk loading and export capabilities through this <code>VertexProgram</code>. This topic is discussed further in the <a target="_blank" rel="noopener" href="http://tinkerpop.apache.org/docs/3.4.6/dev/provider/#bulk-import-export">Provider Documentation</a>.</p>
+<p>OneTimeBulkLoader：一次批量导入数据，不会保存源图中的id，导入数据不会开启事务，适合图数据库初始化</p>
+<p>IncrementBulkLoader：增量导入数据，并且通过bulkLoader.vertex.id属性保存源图中的id值，对于id已导入过数据会执行更新操作。为此每导入一个顶点数据都会执行如下逻辑：获取要导入顶点的id值，查询图中是否有某个顶点的bulkLoader.vertex.id值等于id值的，如果等于，则使用要插入的值，更新该图中已存在的顶点属性；如果不存在，则直接添加。</p>
+<p>上述方法比较老，但例子比较多</p>
+<h3 id="bulkloadervertexprogram"><a class="markdownIt-Anchor" href="#bulkloadervertexprogram"></a> BulkLoaderVertexProgram</h3>
+<p>The <code>BulkLoaderVertexProgram</code> provides a generalized way for loading graphs of any size into a persistent <code>Graph</code>. It is especially useful for large graphs (i.e. hundreds of millions or billions of edges) as it can take advantage of the parallel processing offered by <code>GraphComputer</code> instances. The input can be any existing <code>Graph</code> database supporting TinkerPop3 or any of the Hadoop GraphInputFormats (e.g. <code>GraphSONInputFormat</code>, <code>GryoInputFormat</code> or <code>ScriptInputFormat</code>). The following example demonstrates how to load data from one TinkerGraph to another:</p>
+<p><code>BulkLoaderVertexProgram</code> uses the <code>IncrementalBulkLoader</code> by default. The other option is the <code>OneTimeBulkLoader</code>, which doesn’t store any temporary IDs in the <code>writeGraph</code> and thus should only be used for initial bulk loads. Both implementations should cover the majority of use-cases, but have a limitation though: They don’t support multi-valued properties. <code>OneTimeBulkLoader</code> and <code>IncrementalBulkLoader</code> will handle every property as a single-valued property. A custom <code>BulkLoader</code> implementation has to be used if the default behavior is not sufficient.</p>
+<p>关于两种BulkLoader实际使用的一些区别，可以看一下这个文章：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/68117c2082a9">https://www.jianshu.com/p/68117c2082a9</a></p>
+<h4 id="主要步骤"><a class="markdownIt-Anchor" href="#主要步骤"></a> 主要步骤</h4>
+<pre class="highlight"><span class="line">graph = GraphFactory.<span class="keyword">open</span>(<span class="string">&#x27;data/zl/hadoop-graphson.properties&#x27;</span>)</span><br><span class="line">blvp = BulkLoaderVertexProgram.build().bulkLoader(OneTimeBulkLoader).writeGraph(<span class="string">&#x27;data/zl/janusgraph-test.properties&#x27;</span>).create(graph)</span><br><span class="line">graph.compute(SparkGraphComputer).program(blvp).submit().<span class="keyword">get</span>()</span><br></pre>
+<p>其中hadoop-graphson.properties给出hadoopgraph的配置，其中指定的文件inputlocation指的是hadoop内的文件地址，<a target="_blank" rel="noopener" href="http://xn--gremlinhdfs-618qq8e8w3avmld54j.ls">可以在gremlin中用hdfs.ls</a>()查看这个空间。</p>
+<p>对应的一些参数：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Builder Method</th>
+<th style="text-align:left">Purpose</th>
+<th style="text-align:left">Default Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>bulkLoader(Class|String)</code></td>
+<td style="text-align:left">Sets the class of the bulk loader implementation.</td>
+<td style="text-align:left"><code>IncrementalBulkLoader</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>vertexIdProperty(String)</code></td>
+<td style="text-align:left">Sets the name of the property in the target graph that holds the vertex id from the source graph.</td>
+<td style="text-align:left"><code>bulkLoader.vertex.id</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>keepOriginalIds(boolean)</code></td>
+<td style="text-align:left">Whether to keep the id’s from the source graph in the target graph or not. It’s recommended to keep them if it’s planned to do further bulk loads using the same datasources.</td>
+<td style="text-align:left"><code>true</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>userSuppliedIds(boolean)</code></td>
+<td style="text-align:left">Whether to use the id’s from the source graph as id’s in the target graph. If set to <code>true</code>, <code>vertexIdProperty</code> will be ignored. Note, that the target graph must support user supplied identifiers.</td>
+<td style="text-align:left"><code>false</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>intermediateBatchSize(int)</code></td>
+<td style="text-align:left">Sets the batch size for intermediate transactions. This is per thread in a multi-threaded environment. <code>0</code> means that transactions will only be committed at the end of an iteration cycle. It’s recommended to tune this property for the target graph and not use the default value of <code>0</code>.</td>
+<td style="text-align:left"><code>0</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>writeGraph(String)</code></td>
+<td style="text-align:left">Sets the path to a <code>GraphFactory</code> compatible configuration file for the target graph.</td>
+<td style="text-align:left"><em>none</em></td>
+</tr>
+</tbody>
+</table>
+<p>所以在正式导入前，需要先将本地做好的格式化文本传入这个空间内再进行上述导出数据过程</p>
+<pre class="highlight"><span class="line"><span class="keyword">if</span> (!hdfs.exists(<span class="string">&#x27;data/grateful-dead.kryo&#x27;</span>)) hdfs.copyFromLocal(<span class="string">&#x27;data/grateful-dead.kryo&#x27;</span>,<span class="string">&#x27;data/grateful-dead.kryo&#x27;</span>)</span><br></pre>
+<p>janusgraph-test.properties是我们要导入的图的配置，包括表名之类的。</p>
+<pre class="highlight"><span class="line"><span class="keyword">if</span> (!hdfs.exists(<span class="string">&#x27;data/graph.json&#x27;</span>)) hdfs.copyFromLocal(<span class="string">&#x27;graph.json&#x27;</span>,<span class="string">&#x27;data/graph.json&#x27;</span>)</span><br><span class="line">graph = GraphFactory.open(<span class="string">&#x27;conf/hadoop-graph/hadoop-graphson.properties&#x27;</span>)</span><br><span class="line">blvp = BulkLoaderVertexProgram.build().bulkLoader(OneTimeBulkLoader).keepOriginalIds(<span class="literal">true</span>).userSuppliedIds(<span class="literal">true</span>).writeGraph(<span class="string">&#x27;conf/janusgraph-hbase-es-susong_test.properties&#x27;</span>).create(graph)</span><br><span class="line">graph.compute(SparkGraphComputer).program(blvp).submit().get()</span><br></pre>
+<pre class="highlight"><span class="line">sg = g.V().has(<span class="string">&#x27;country&#x27;</span>, <span class="string">&#x27;US&#x27;</span>).has(<span class="string">&#x27;region&#x27;</span>,without(<span class="string">&#x27;US-HI&#x27;</span>, <span class="string">&#x27;US-AL&#x27;</span>)).outE(<span class="string">&#x27;route&#x27;</span>).where(inV().has(<span class="string">&#x27;region&#x27;</span>,without(<span class="string">&#x27;US-HI&#x27;</span>, <span class="string">&#x27;US-AL&#x27;</span>)).has(<span class="string">&#x27;country&#x27;</span>, <span class="string">&#x27;US&#x27;</span>)).subgraph(<span class="string">&#x27;us&#x27;</span>).cap(<span class="string">&#x27;us&#x27;</span>).next()</span><br><span class="line">file = <span class="keyword">new</span> FileOutputStream(<span class="string">&quot;/tmp/airroutes_us.json&quot;</span>)</span><br><span class="line">mapper = GraphSONMapper.build().addCustomModule(org.janusgraph.graphdb.tinkerpop.io.graphson.JanusGraphSONModuleV2d0.getInstance()).create()</span><br><span class="line">writer = GraphSONWriter.build().mapper(mapper).create()</span><br><span class="line">writer.writeGraph(file, sg)</span><br></pre>
+<h4 id="遇到的多个问题"><a class="markdownIt-Anchor" href="#遇到的多个问题"></a> 遇到的多个问题</h4>
+<p>1.在尝试将janusgraph导出的包含图数据的json文件导入到另外一个表时，会报如下错：</p>
+<p>org.apache.tinkerpop.shaded.jackson.databind.JsonMappingException: Could not deserialize the JSON value as required. Nested exception: org.apache.tinkerpop.shaded.jackson.databind.exc.MismatchedInputException: Cannot deserialize instance of <code>java.lang.String</code> out of START_OBJECT token<br />
+at [Source: (ByteArrayInputStream); line: 1, column: 137]<br />
+at [Source: (ByteArrayInputStream); line: 1, column: 137] (through reference chain: java.util.LinkedHashMap[“inE”]-&gt;java.util.LinkedHashMap[“案件涉及”]-&gt;java.util.ArrayList[0]-&gt;java.util.LinkedHashMap[“id”])</p>
+<p>相关字段为：“inE”:{“案件涉及”:[{“id”:{&quot;@type&quot;:“janusgraph:RelationIdentifier”,&quot;@value&quot;:{“relationId”:“23f9g-25yjk-1lh-36o”}}，修改“id”为数字后，问题解决，这个应该是janusgraph:RelationIdentifier类型不被bulkloader程序所识别。</p>
+<p>2.java.lang.NoSuchMethodError: net.jpountz.lz4.LZ4BlockInputStream.<init>(Ljava/io/InputStream;Z)V</p>
+<p>这里的问题是由于janusgraph用的是2.4.0的spark，这个版本的spark依赖的LZ4是1.4.0版本，但是lib里有1.3.0版本的LZ4，因此需要把1.3.0的LZ4移除。</p>
+<p>3.载入时可能会遇到java.util.NoSuchElementException 	at org.apache.tinkerpop.gremlin.process.traversal.util.DefaultTraversal.next(DefaultTraversal.java:204)</p>
+<p>这可能时导入文件格式的问题，要求一个顶点独占一行。</p>
+<p>即使过了这一步，还是会遇到类似报错，这时的现象是顶点建立完成，但是建边遇到问题，报错出现在at org.apache.tinkerpop.gremlin.process.computer.bulkloading.BulkLoader.getVertexById(BulkLoader.java:118)，这个函数只有一行，return g.V().hasId(id).next(),因此可以分析是获取顶点id失败。</p>
+<p>刚开始按照网上的在incrementBulkLoader时的配置，额外建立一个by.vertex.id的属性，并建立对应索引，但方法无效。</p>
+<p>继而发现建好的点的id与原文本文件中顶点id不一致，可能导致建边时读取的两侧顶点id并不存在。因此选择keepOriginalIds(true).userSuppliedIds(true)，建图时使用原文本中id作为建好的点的id，这两个选项是否都有效未知，但后一个是最终生效的，二者具体的区别也不是很明确。</p>
+<p>这里查询源码可以知道，keepOriginalIds对于Onetime这种方式是被写死为false的，无法自己定制。</p>
+<pre class="highlight"><span class="line">gremlin&gt; blvp &#x3D; BulkLoaderVertexProgram.build().bulkLoader(OneTimeBulkLoader).keepOriginalIds(true).userSuppliedIds(true).writeGraph(&#39;conf&#x2F;janusgraph-hbase-es-susong_test.properties&#39;).create(graph)</span><br><span class="line">&#x3D;&#x3D;&gt;BulkLoaderVertexProgram[bulkLoader&#x3D;OneTimeBulkLoader, vertexIdProperty&#x3D;null, userSuppliedIds&#x3D;true, keepOriginalIds&#x3D;false, batchSize&#x3D;0]</span><br></pre>
+<p>此时还会出错，java.lang.UnsupportedOperationException: Vertex does not support user supplied identifiers，主要是图的设置里graph.set-vertex-id选项为false，vertex的id由图自动给与，用户不能自己设置。</p>
+<p>在目标图配置文件里设置这个选项后发现还是不行，会有warning，- Local setting graph.set-vertex-id=true (Type: FIXED) is overridden by globally managed value (false).  Use the ManagementSystem interface instead of the local configuration to control this setting.即配置文件的配置没生效，原来janusgraph的图的相关设置在图第一次启动在hbase中建表后就是写进图内部了，后序配置文件的修改不影响实际的配置项值，因此要把hbase中图删除，重新初始化图让新配置生效。</p>
+<p>经过这些操作后，使用导入命令后就能成功实现所有图数据的导入了。</p>
+<h4 id="某些范围内的数字id无法指定给顶点的问题"><a class="markdownIt-Anchor" href="#某些范围内的数字id无法指定给顶点的问题"></a> 某些范围内的数字ID无法指定给顶点的问题</h4>
+<p>主要通过graph.addVertex(id,XX)增加顶点并且指定id时会报错not a valid id, 根据报错信息，定位到addVertex函数定义中以下语句</p>
+<pre class="highlight"><span class="line">Preconditions.checkArgument(vertexId == <span class="keyword">null</span> || IDManager.VertexIDType.NormalVertex.is(vertexId), <span class="string">&quot;Not a valid vertex id: %s&quot;</span>, vertexId);</span><br></pre>
+<p>追溯到org.janusgraph.graphdb.idmanagement.IDManager类，下面的VertexIDType为一个枚举类，NormalVertex为枚举类的一个成员，所有成员有一个公共函数：</p>
+<pre class="highlight"><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">boolean</span> <span class="title">is</span><span class="params">(<span class="keyword">long</span> id)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> (id &amp; ((<span class="number">1L</span> &lt;&lt; offset()) - <span class="number">1</span>)) == suffix();</span><br><span class="line">        &#125;</span><br></pre>
+<p>这个函数判断id是否满足要求，每个成员都有自己的offset()和suffix()函数，返回不同的长整数。对于NormalVertex，</p>
+<pre class="highlight"><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">long</span> <span class="title">offset</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">3L</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">long</span> <span class="title">suffix</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0L</span>;</span><br><span class="line">&#125; <span class="comment">// 000b</span></span><br></pre>
+<p>也就是说新增顶点的id必须满足(id &amp; ((1L &lt;&lt; 3L) - 1)) ==0L（(id &amp; (0111b) ==0L），因此这里的id必须是64位long型整数中8的倍数，检查之前janusgraph导出的图也发现janusgraph自己生成的id也都是8的倍数。这里的做法应该是和Janusgraph存储结构中对id的处理有关系（<strong>因为janusgraph是根据数据存储区块信息来生成id，末尾要留3位padding位设置为0来使id长度为32位</strong>）。</p>
+<pre class="highlight"><span class="line">public GraphTraversal&lt;Vertex, Vertex&gt; V(final Object... vertexIds) &#123;</span><br><span class="line">        final GraphTraversalSource clone &#x3D; this.clone();</span><br><span class="line">        clone.bytecode.addStep(GraphTraversal.Symbols.V, vertexIds);</span><br><span class="line">        final GraphTraversal.Admin&lt;Vertex, Vertex&gt; traversal &#x3D; new DefaultGraphTraversal&lt;&gt;(clone);</span><br><span class="line">        return traversal.addStep(new GraphStep&lt;&gt;(traversal, Vertex.class, true, vertexIds));</span><br><span class="line">    &#125;</span><br></pre>
+<h4 id="利用自定义脚本和自定义格式进行大批量导入"><a class="markdownIt-Anchor" href="#利用自定义脚本和自定义格式进行大批量导入"></a> 利用自定义脚本和自定义格式进行大批量导入</h4>
+<p>上述导入方式中，一直存在指定id的复杂处理问题，即使上述改设置方式成功，但是如果id取8，16，32这种小数的时候，g.V(id)这种方式找不到对应的顶点。在查看360数科的导入方案时发现他们用的是自定义解析脚本方式实现的导入，在设置上没有对id进行特别的处理，因此也要研究一下最好。</p>
+<p>这里使用的是官方的grateful-dead.txt中数据，脚本也由官方提供，数据格式：</p>
+<pre class="highlight"><span class="line">250,song,SIMPLE TWIST OF FATE,cover,3	followedBy,287,1|followedBy,265,1|followedBy,269,1|sungBy,447|writtenBy,447	followedBy,249,1|followedBy,131,1|followedBy,287,1</span><br></pre>
+<p>以\t符号可以分割微三部分，第一部分是顶点信息，按逗号分隔后第一个为id，第二部分为inedges，第三部分为outedges，每一条边用|分开，每条边按都好分割后的倒数第二位为边另一侧顶点的id。解析脚本如下：</p>
+<pre class="highlight"><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Licensed to the Apache Software Foundation (ASF) under one</span></span><br><span class="line"><span class="comment"> * or more contributor license agreements.  See the NOTICE file</span></span><br><span class="line"><span class="comment"> * distributed with this work for additional information</span></span><br><span class="line"><span class="comment"> * regarding copyright ownership.  The ASF licenses this file</span></span><br><span class="line"><span class="comment"> * to you under the Apache License, Version 2.0 (the</span></span><br><span class="line"><span class="comment"> * &quot;License&quot;); you may not use this file except in compliance</span></span><br><span class="line"><span class="comment"> * with the License.  You may obtain a copy of the License at</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * http://www.apache.org/licenses/LICENSE-2.0</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * Unless required by applicable law or agreed to in writing,</span></span><br><span class="line"><span class="comment"> * software distributed under the License is distributed on an</span></span><br><span class="line"><span class="comment"> * &quot;AS IS&quot; BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY</span></span><br><span class="line"><span class="comment"> * KIND, either express or implied.  See the License for the</span></span><br><span class="line"><span class="comment"> * specific language governing permissions and limitations</span></span><br><span class="line"><span class="comment"> * under the License.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> parse(line) &#123;</span><br><span class="line">    <span class="keyword">def</span> (vertex, outEdges, inEdges) = line.split(<span class="regexp">/\t/</span>, <span class="number">3</span>)</span><br><span class="line">    <span class="keyword">def</span> (v1id, v1label, v1props) = vertex.split(<span class="regexp">/,/</span>, <span class="number">3</span>)</span><br><span class="line">    <span class="keyword">def</span> v1 = graph.addVertex(T.id, v1id.toInteger(), T.label, v1label)</span><br><span class="line">    <span class="keyword">switch</span> (v1label) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;song&quot;</span>:</span><br><span class="line">            <span class="keyword">def</span> (name, songType, performances) = v1props.split(<span class="regexp">/,/</span>)</span><br><span class="line">            v1.property(<span class="string">&quot;name&quot;</span>, name)</span><br><span class="line">            v1.property(<span class="string">&quot;songType&quot;</span>, songType)</span><br><span class="line">            v1.property(<span class="string">&quot;performances&quot;</span>, performances.toInteger())</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">case</span> <span class="string">&quot;artist&quot;</span>:</span><br><span class="line">            v1.property(<span class="string">&quot;name&quot;</span>, v1props)</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="symbol">default:</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> Exception(<span class="string">&quot;Unexpected vertex label: $&#123;v1label&#125;&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    [[outEdges, <span class="literal">true</span>], [inEdges, <span class="literal">false</span>]].each &#123; <span class="keyword">def</span> edges, <span class="keyword">def</span> out -&gt;</span><br><span class="line">        edges.split(<span class="regexp">/\|/</span>).grep().each &#123; <span class="keyword">def</span> edge -&gt;</span><br><span class="line">            <span class="keyword">def</span> parts = edge.split(<span class="regexp">/,/</span>)</span><br><span class="line">            <span class="keyword">def</span> otherV, eLabel, weight = <span class="literal">null</span></span><br><span class="line">            <span class="keyword">if</span> (parts.size() == <span class="number">2</span>) &#123;</span><br><span class="line">                (eLabel, otherV) = parts</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                (eLabel, otherV, weight) = parts</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">def</span> v2 = graph.addVertex(T.id, otherV.toInteger())</span><br><span class="line">            <span class="keyword">def</span> e = out ? v1.addOutEdge(eLabel, v2) : v1.addInEdge(eLabel, v2)</span><br><span class="line">            <span class="keyword">if</span> (weight != <span class="literal">null</span>) e.property(<span class="string">&quot;weight&quot;</span>, weight.toInteger())</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> v1</span><br><span class="line">&#125;</span><br></pre>
+<p>由groovy语言编写而成，其中遍历每行时，都会对边两侧的顶点进行一次addVertex操作，必然会引起同一顶点两次建立，但addVertex会判断id是否已经在图中存在，所以不必担心重复的问题。</p>
+<p>-&gt;这个符号指示前后内容和-&gt;构成一个闭包，有点像匿名函数。</p>
+<p>grep()过滤集合中不符合括号内条件的表达式，如果没有表达式就过滤空字符。</p>
+<h4 id="完整删除一个图"><a class="markdownIt-Anchor" href="#完整删除一个图"></a> 完整删除一个图</h4>
+<p>这里记录一个完整删除图的办法，以前只知道可以直接到hbase中把对应表和到es中删除对应索引来完全删除图，但janusgraph里有直接的命令：</p>
+<pre class="highlight"><span class="line">JanusGraphFactory.drop(graph)</span><br></pre>
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://example.com/about">Bob</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://example.com/2021/01/23/Janusgraph%20Gremlin%20%E4%BD%BF%E7%94%A8/">http://example.com/2021/01/23/Janusgraph%20Gremlin%20%E4%BD%BF%E7%94%A8/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  <div class="nav-item-prev">
+    <a href="/2021/01/23/TENER Adapting Transformer Encoder for Named Entity Recognition 读书笔记/" class="nav-link">
+      <i class="iconfont icon-left nav-prev-icon"></i>
+      <div>
+        <div class="nav-label">上一篇</div>
+        
+        <div class="nav-title">TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记 </div>
+        
+      </div>
+    </a>
+  </div>
+  
+  
+  <div class="nav-item-next">
+    <a href="/2021/01/23/LSTM的一些tips/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">LSTM的一些tips </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content comment-card" style="margin-top: 16px;">
+  <div class="comment-card-title">评论</div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#schema%E5%88%9B%E5%BB%BA"><span class="toc-text"> Schema创建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#automatic-schema-maker%E8%87%AA%E5%8A%A8%E5%88%9B%E5%BB%BAschmea"><span class="toc-text"> Automatic Schema Maker（自动创建schmea）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#edge-label-multiplicity%E8%BE%B9%E7%9A%84%E6%A0%87%E7%AD%BE%E5%A4%9A%E6%A0%B7%E6%80%A7"><span class="toc-text"> Edge Label Multiplicity（边的标签多样性）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#janusgraph%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%AF%BC%E5%85%A5"><span class="toc-text"> Janusgraph大数据导入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#batch-loading"><span class="toc-text"> Batch Loading</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#optimizing-id-allocation"><span class="toc-text"> Optimizing ID Allocation</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#id-block-size"><span class="toc-text"> ID Block Size</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#optimizing-writes-and-reads"><span class="toc-text"> Optimizing Writes and Reads</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#buffer-size"><span class="toc-text"> Buffer Size</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#parallelizing-the-load"><span class="toc-text"> Parallelizing the Load</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#janusgraph%E6%94%AF%E6%8C%81olap"><span class="toc-text"> Janusgraph支持OLAP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#configuring-hadoop-for-running-olap"><span class="toc-text"> Configuring Hadoop for Running OLAP</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tinkerpop-gremlin%E4%B8%AD%E5%85%B3%E4%BA%8Ebulkload%E7%9B%B8%E5%85%B3%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-text"> Tinkerpop gremlin中关于bulkload相关的内容：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#bulk-import-export"><span class="toc-text"> Bulk Import Export</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84io-step"><span class="toc-text"> 简单的IO-step</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#clonevertexprogram"><span class="toc-text"> CloneVertexProgram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bulkloadervertexprogram"><span class="toc-text"> BulkLoaderVertexProgram</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%AD%A5%E9%AA%A4"><span class="toc-text"> 主要步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E5%A4%9A%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="toc-text"> 遇到的多个问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%90%E4%BA%9B%E8%8C%83%E5%9B%B4%E5%86%85%E7%9A%84%E6%95%B0%E5%AD%97id%E6%97%A0%E6%B3%95%E6%8C%87%E5%AE%9A%E7%BB%99%E9%A1%B6%E7%82%B9%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text"> 某些范围内的数字ID无法指定给顶点的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E8%84%9A%E6%9C%AC%E5%92%8C%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A0%BC%E5%BC%8F%E8%BF%9B%E8%A1%8C%E5%A4%A7%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5"><span class="toc-text"> 利用自定义脚本和自定义格式进行大批量导入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E5%9B%BE"><span class="toc-text"> 完整删除一个图</span></a></li></ol></li></ol></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/imgs/AvatarMaker.png" class="author-img">
+
+<p class="author-name">Bob</p>
+<p class="author-description">Fresh NLPer</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>8</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>11</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#schema%E5%88%9B%E5%BB%BA"><span class="toc-text"> Schema创建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#automatic-schema-maker%E8%87%AA%E5%8A%A8%E5%88%9B%E5%BB%BAschmea"><span class="toc-text"> Automatic Schema Maker（自动创建schmea）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#edge-label-multiplicity%E8%BE%B9%E7%9A%84%E6%A0%87%E7%AD%BE%E5%A4%9A%E6%A0%B7%E6%80%A7"><span class="toc-text"> Edge Label Multiplicity（边的标签多样性）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#janusgraph%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%AF%BC%E5%85%A5"><span class="toc-text"> Janusgraph大数据导入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#batch-loading"><span class="toc-text"> Batch Loading</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#optimizing-id-allocation"><span class="toc-text"> Optimizing ID Allocation</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#id-block-size"><span class="toc-text"> ID Block Size</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#optimizing-writes-and-reads"><span class="toc-text"> Optimizing Writes and Reads</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#buffer-size"><span class="toc-text"> Buffer Size</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#parallelizing-the-load"><span class="toc-text"> Parallelizing the Load</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#janusgraph%E6%94%AF%E6%8C%81olap"><span class="toc-text"> Janusgraph支持OLAP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#configuring-hadoop-for-running-olap"><span class="toc-text"> Configuring Hadoop for Running OLAP</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tinkerpop-gremlin%E4%B8%AD%E5%85%B3%E4%BA%8Ebulkload%E7%9B%B8%E5%85%B3%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-text"> Tinkerpop gremlin中关于bulkload相关的内容：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#bulk-import-export"><span class="toc-text"> Bulk Import Export</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84io-step"><span class="toc-text"> 简单的IO-step</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#clonevertexprogram"><span class="toc-text"> CloneVertexProgram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bulkloadervertexprogram"><span class="toc-text"> BulkLoaderVertexProgram</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%AD%A5%E9%AA%A4"><span class="toc-text"> 主要步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E5%A4%9A%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="toc-text"> 遇到的多个问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%90%E4%BA%9B%E8%8C%83%E5%9B%B4%E5%86%85%E7%9A%84%E6%95%B0%E5%AD%97id%E6%97%A0%E6%B3%95%E6%8C%87%E5%AE%9A%E7%BB%99%E9%A1%B6%E7%82%B9%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text"> 某些范围内的数字ID无法指定给顶点的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E8%84%9A%E6%9C%AC%E5%92%8C%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A0%BC%E5%BC%8F%E8%BF%9B%E8%A1%8C%E5%A4%A7%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5"><span class="toc-text"> 利用自定义脚本和自定义格式进行大批量导入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E5%9B%BE"><span class="toc-text"> 完整删除一个图</span></a></li></ol></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\git" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="\tags\Hexo" title="Hexo"><div class="tags-list-item">Hexo</div></a>
+    
+    <a href="\tags\github" title="github"><div class="tags-list-item">github</div></a>
+    
+    <a href="\tags\self-attention" title="self-attention"><div class="tags-list-item">self-attention</div></a>
+    
+    <a href="\tags\transformer" title="transformer"><div class="tags-list-item">transformer</div></a>
+    
+    <a href="\tags\NER" title="NER"><div class="tags-list-item">NER</div></a>
+    
+    <a href="\tags\知识图谱" title="知识图谱"><div class="tags-list-item">知识图谱</div></a>
+    
+    <a href="\tags\Gremlin" title="Gremlin"><div class="tags-list-item">Gremlin</div></a>
+    
+    <a href="\tags\Janusgraph" title="Janusgraph"><div class="tags-list-item">Janusgraph</div></a>
+    
+    <a href="\tags\Docker" title="Docker"><div class="tags-list-item">Docker</div></a>
+    
+    <a href="\tags\LSTM 时序神经网络" title="LSTM 时序神经网络"><div class="tags-list-item">LSTM 时序神经网络</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#schema%E5%88%9B%E5%BB%BA"><span class="toc-text"> Schema创建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#automatic-schema-maker%E8%87%AA%E5%8A%A8%E5%88%9B%E5%BB%BAschmea"><span class="toc-text"> Automatic Schema Maker（自动创建schmea）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#edge-label-multiplicity%E8%BE%B9%E7%9A%84%E6%A0%87%E7%AD%BE%E5%A4%9A%E6%A0%B7%E6%80%A7"><span class="toc-text"> Edge Label Multiplicity（边的标签多样性）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#janusgraph%E5%A4%A7%E6%95%B0%E6%8D%AE%E5%AF%BC%E5%85%A5"><span class="toc-text"> Janusgraph大数据导入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#batch-loading"><span class="toc-text"> Batch Loading</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#optimizing-id-allocation"><span class="toc-text"> Optimizing ID Allocation</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#id-block-size"><span class="toc-text"> ID Block Size</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#optimizing-writes-and-reads"><span class="toc-text"> Optimizing Writes and Reads</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#buffer-size"><span class="toc-text"> Buffer Size</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#parallelizing-the-load"><span class="toc-text"> Parallelizing the Load</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#janusgraph%E6%94%AF%E6%8C%81olap"><span class="toc-text"> Janusgraph支持OLAP</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#configuring-hadoop-for-running-olap"><span class="toc-text"> Configuring Hadoop for Running OLAP</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tinkerpop-gremlin%E4%B8%AD%E5%85%B3%E4%BA%8Ebulkload%E7%9B%B8%E5%85%B3%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-text"> Tinkerpop gremlin中关于bulkload相关的内容：</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#bulk-import-export"><span class="toc-text"> Bulk Import Export</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84io-step"><span class="toc-text"> 简单的IO-step</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#clonevertexprogram"><span class="toc-text"> CloneVertexProgram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bulkloadervertexprogram"><span class="toc-text"> BulkLoaderVertexProgram</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BB%E8%A6%81%E6%AD%A5%E9%AA%A4"><span class="toc-text"> 主要步骤</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%81%87%E5%88%B0%E7%9A%84%E5%A4%9A%E4%B8%AA%E9%97%AE%E9%A2%98"><span class="toc-text"> 遇到的多个问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9F%90%E4%BA%9B%E8%8C%83%E5%9B%B4%E5%86%85%E7%9A%84%E6%95%B0%E5%AD%97id%E6%97%A0%E6%B3%95%E6%8C%87%E5%AE%9A%E7%BB%99%E9%A1%B6%E7%82%B9%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text"> 某些范围内的数字ID无法指定给顶点的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E8%84%9A%E6%9C%AC%E5%92%8C%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A0%BC%E5%BC%8F%E8%BF%9B%E8%A1%8C%E5%A4%A7%E6%89%B9%E9%87%8F%E5%AF%BC%E5%85%A5"><span class="toc-text"> 利用自定义脚本和自定义格式进行大批量导入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E5%9B%BE"><span class="toc-text"> 完整删除一个图</span></a></li></ol></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/TENER Adapting Transformer Encoder for Named Entity Recognition 读书笔记/"><div class="recent-posts-item-content">TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/Janusgraph Gremlin 使用/"><div class="recent-posts-item-content">Janusgraph和Gremlin的一些使用经验</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/LSTM的一些tips/"><div class="recent-posts-item-content">LSTM的一些tips</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/Docker创建和部署/"><div class="recent-posts-item-content">Docker创建和部署</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2021 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">沉默者之说 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+
+  
+  
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  
+
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  <script>loadScript("/js/lib/busuanzi.min.js")</script>
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

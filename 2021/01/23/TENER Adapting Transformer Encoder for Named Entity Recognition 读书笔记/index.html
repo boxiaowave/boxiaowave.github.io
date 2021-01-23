@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<meta  lang="zh-CN" >
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="theme-color" content="#fff" id="theme-color">
+  <link rel="icon" href="">
+  <title>沉默者之说</title>
+  <script>
+    // control reverse button
+    var reverseDarkList = {
+      dark: 'light',
+      light: 'dark'
+    };
+    var themeColor = {
+      dark: '#1c1c1e',
+      light: '#fff'
+    }
+    // get the data of css prefers-color-scheme
+    var getCssMediaQuery = function() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+    // reverse current darkmode setting function
+    var reverseDarkModeSetting = function() {
+      var setting = localStorage.getItem('user-color-scheme');
+      if(reverseDarkList[setting]) {
+        setting = reverseDarkList[setting];
+      } else if(setting === null) {
+        setting = reverseDarkList[getCssMediaQuery()];
+      } else {
+        return;
+      }
+      localStorage.setItem('user-color-scheme', setting);
+      return setting;
+    };
+    // apply current darkmode setting
+    var setDarkmode = function(mode) {
+      var setting = mode || localStorage.getItem('user-color-scheme');
+      if(setting === getCssMediaQuery()) {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else if(reverseDarkList[setting]) {
+        document.documentElement.setAttribute('data-user-color-scheme', setting);
+        document.getElementById('theme-color').content = themeColor[setting];
+      } else {
+        document.documentElement.removeAttribute('data-user-color-scheme');
+        localStorage.removeItem('user-color-scheme');
+        document.getElementById('theme-color').content = themeColor[getCssMediaQuery()];
+      }
+    };
+    setDarkmode();
+  </script>
+  <script>
+    function loadScript(url, cb) {
+      var script = document.createElement('script');
+      script.src = url;
+      if (cb) script.onload = cb;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+  </script>
+  
+  <link rel="preload" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css" as="style" >
+  <link rel="preload" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css" as="style" >
+  
+  <link rel="preload" href="//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js" as="script">
+  
+  
+  <link rel="preload" href="/js/lib/lozad.min.js" as="script">
+  
+  
+  
+  
+  
+  <link rel="prefetch" href="//cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" as="script">
+  
+  
+  
+  <link rel="prefetch" href="//unpkg.com/valine/dist/Valine.min.js" as="script">
+  
+  
+  
+  
+<link rel="stylesheet" href="/css/main.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1946621_vpj3dq9ceqa.css">
+
+  
+  
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1952792_89b4ac4k4up.css">
+
+  
+  
+  
+<meta name="generator" content="Hexo 5.3.0"></head>
+
+
+<body>
+  <div class="wrapper">
+    
+    <nav class="navbar">
+  <div class="navbar-logo">
+    <span class="navbar-logo-main">
+      
+      <img class="navbar-logo-img" src="">
+      
+      <span class="navbar-logo-dsc">沉默者之说</span>
+    </span>
+  </div>
+  <div class="navbar-menu">
+    
+    <a href="/" class="navbar-menu-item">首页 </a>
+    
+    <a href="/archives" class="navbar-menu-item">归档 </a>
+    
+    <a href="/tags" class="navbar-menu-item">标签 </a>
+    
+    <a href="/categories" class="navbar-menu-item">分类 </a>
+    
+    <a href="/about" class="navbar-menu-item">关于 </a>
+    
+    <a href="/links" class="navbar-menu-item">友链 </a>
+    
+    <a class="navbar-menu-item darknavbar" id="dark"><i class="iconfont icon-weather"></i></a>
+  </div>
+</nav>
+    
+    <div class="section-wrap">
+      <div class="container">
+        <div class="columns">
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2021-01-23T14:02:48.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2021-01-23</span>
+    </time>
+    
+    
+    <span class="dot"></span>
+    <span>914 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
+      
+      
+        <a href="/tags/NER/" class="post-meta-link">NER</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/transformer/" class="post-meta-link">transformer</a>
+      
+      
+      <span class="dot"></span>
+      
+        <a href="/tags/self-attention/" class="post-meta-link">self-attention</a>
+      
+    </div>
+  </div>
+  
+  </header>
+  <div id="section" class="post-content">
+    <h2 id="abstract"><a class="markdownIt-Anchor" href="#abstract"></a> Abstract：</h2>
+<p>Transformer在NER中的效果没有它在其他任务中表现的好，效果也不及BiLSTM等模型。因此作者提出TENER模型，模型中同时使用了词汇和字特征。对于transformer自身缺陷导致的direction-aware，distance-aware不足和平滑注意力分布等问题采用相对位置编码和unscale attention等方法进行改进。</p>
+<h2 id="改进点"><a class="markdownIt-Anchor" href="#改进点"></a> 改进点</h2>
+<h3 id="位置编码的缺陷和改进"><a class="markdownIt-Anchor" href="#位置编码的缺陷和改进"></a> 位置编码的缺陷和改进</h3>
+<p>缺点:</p>
+<p>在方向感知和距离感知方面，原始的transformer使用的是绝对位置编码，对于第t个词的位置向量的第2i维和第2i+1维，其值由正余弦函数定义。</p>
+<img src="/imgs/image-20201208130724167.png" alt="image-20201208130724167" style="zoom:50%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208130724167.png" class="lozad post-image">
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>P</mi><msub><mi>E</mi><mrow><mi>t</mi><mo>+</mo><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">PE_{t+k}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.891661em;vertical-align:-0.208331em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="mbin mtight">+</span><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span></span></span></span>可以由<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>P</mi><msub><mi>E</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">PE_{t}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.2805559999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">t</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>的线性组合表示，因此在原始文献认为这样带来了距离和方向感知能力。但考虑计算attention score的点乘操作，</p>
+<img src="/imgs/image-20201208131303460.png" alt="image-20201208131303460" style="zoom: 50%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208131303460.png" class="lozad post-image">
+<p>显然<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>−</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">-k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord">−</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span>和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span>的结果相等，因此方向感知是失去的。但值的确随着<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi mathvariant="normal">∣</mi><mi>k</mi><mi mathvariant="normal">∣</mi></mrow><annotation encoding="application/x-tex">|k|</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">∣</span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span><span class="mord">∣</span></span></span></span>的增大在逐渐减小，距离感知似乎还存在。</p>
+<p><img src="/imgs/image-20201208131443026.png" alt="image-20201208131443026" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208131443026.png" class="lozad post-image"></p>
+<p>但在attention计算时，上述embedding是要经过一个矩阵转换后再点乘，</p>
+<img src="/imgs/image-20201208131824817.png" alt="image-20201208131824817" style="zoom:67%;" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208131824817.png" class="lozad post-image">
+<p>可以写成<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>P</mi><msubsup><mi>E</mi><mi>t</mi><mi>T</mi></msubsup><mi>W</mi><mi>P</mi><msub><mi>E</mi><mrow><mi>t</mi><mo>+</mo><mi>k</mi></mrow></msub></mrow><annotation encoding="application/x-tex">PE^{T}_{t}WPE_{t+k}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.088331em;vertical-align:-0.247em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8413309999999999em;"><span style="top:-2.4530000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">t</span></span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight" style="margin-right:0.13889em;">T</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.247em;"><span></span></span></span></span></span></span><span class="mord mathdefault" style="margin-right:0.13889em;">W</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361079999999999em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathdefault mtight">t</span><span class="mbin mtight">+</span><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.208331em;"><span></span></span></span></span></span></span></span></span></span>,在学习初期，矩阵都是随机初始化，对于随机的<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>W</mi></mrow><annotation encoding="application/x-tex">W</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">W</span></span></span></span>,上述值在<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span>上的分布如下绿点和橘点所示</p>
+<p><img src="/imgs/image-20201208165446715.png" alt="image-20201208165446715" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208165446715.png" class="lozad post-image"></p>
+<p>很明显，之前的距离感知也被attention机制给破坏。</p>
+<p>改进:</p>
+<p>为了改变上述问题，引入相对位置编码，改写attention的计算方式：</p>
+<p><img src="/imgs/image-20201208165742121.png" alt="image-20201208165742121" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208165742121.png" class="lozad post-image"></p>
+<p>相对位置编码<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>t</mi></mrow><annotation encoding="application/x-tex">t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.61508em;vertical-align:0em;"></span><span class="mord mathdefault">t</span></span></span></span>和<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo>−</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">-t</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69841em;vertical-align:-0.08333em;"></span><span class="mord">−</span><span class="mord mathdefault">t</span></span></span></span>下：</p>
+<p><img src="/imgs/image-20201208165934985.png" alt="image-20201208165934985" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208165934985.png" class="lozad post-image"></p>
+<p>可见距离方向感知通过相对位置编码显式地引入到注意力里。在attention计算中减少了k的变换矩阵，将这个参数融合到q的变换矩阵中，减少了参数量。</p>
+<h3 id="attention的scale是否必要"><a class="markdownIt-Anchor" href="#attention的scale是否必要"></a> Attention的scale是否必要</h3>
+<p>在transformer的self-attention中，QK的量级过大的话，会导致softmax后的attention score分布更趋向于较大qk，使得整体的梯度变小。因此引入scaled factor，控制QK的大小，使得attention更光滑地分布在不同的位置上，但是在NER任务中往往一个词的NER标签只与前后几个词有关系，因此作者认为稀疏的注意力分布会更有利于NER任务，应该去除scaled。</p>
+<p>关于为什么会梯度变小和用<span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>d</mi><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">d_k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.84444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault">d</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.33610799999999996em;"><span style="top:-2.5500000000000003em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.03148em;">k</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>，可以看这个问题 <a target="_blank" rel="noopener" href="https://www.zhihu.com/question/339723385/answer/782509914">https://www.zhihu.com/question/339723385/answer/782509914</a></p>
+<h2 id="实验"><a class="markdownIt-Anchor" href="#实验"></a> 实验</h2>
+<p>模型结构：</p>
+<p><img src="/imgs/image-20201208170608420.png" alt="image-20201208170608420" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208170608420.png" class="lozad post-image"></p>
+<p>transformer的输入嵌入由两种不同的embedding拼接而成。实验分别在中文数据集和英文数据集上实验，其中中文里的两种embedding使用的是预训练好的unigram和bigram嵌入，而英文使用的是glove 300d预训练词嵌入和char encoding的词嵌入拼接，向量在训练过程中都是可以学习的。</p>
+<p>char encoding的embedding的生成很有意思，它为每个英文字符构建embedding，然后单词的char encoding由构成单词的字符的embedding最大化或者平均pool得到的。这个char embedding可以随机初始化后让模型学习，也可以用输入一层LSTM、CNN层或者transformer建模后输出得到的embedding来替代。</p>
+<p>在中文数据集上的效果</p>
+<p><img src="/imgs/image-20201208171534648.png" alt="image-20201208171534648" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/image-20201208171534648.png" class="lozad post-image"></p>
+<p>比LSTM好，也可以看到不用scale的确有性能增强。</p>
+<h3 id="思考为什么不与bert去对比"><a class="markdownIt-Anchor" href="#思考为什么不与bert去对比"></a> 思考：为什么不与bert去对比？</h3>
+<p>根据作者在github的解释，文章的目的不是为了刷新SOTA，而是尝试去解释transformer的结构缺陷。对于Bert来说，通过预训练，它已经克服了原始Transformer的缺陷，TENER的效果无法与Bert相比。使用Bert+CRF,实测Weibo数据集上f1能到0.65。</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://example.com/about">Bob</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://example.com/2021/01/23/TENER%20Adapting%20Transformer%20Encoder%20for%20Named%20Entity%20Recognition%20%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">http://example.com/2021/01/23/TENER%20Adapting%20Transformer%20Encoder%20for%20Named%20Entity%20Recognition%20%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  
+  <div class="nav-item-next">
+    <a href="/2021/01/23/Janusgraph Gremlin 使用/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">Janusgraph和Gremlin的一些使用经验 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content comment-card" style="margin-top: 16px;">
+  <div class="comment-card-title">评论</div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#abstract"><span class="toc-text"> Abstract：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%B9%E8%BF%9B%E7%82%B9"><span class="toc-text"> 改进点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81%E7%9A%84%E7%BC%BA%E9%99%B7%E5%92%8C%E6%94%B9%E8%BF%9B"><span class="toc-text"> 位置编码的缺陷和改进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#attention%E7%9A%84scale%E6%98%AF%E5%90%A6%E5%BF%85%E8%A6%81"><span class="toc-text"> Attention的scale是否必要</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-text"> 实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%80%83%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%B8%8Ebert%E5%8E%BB%E5%AF%B9%E6%AF%94"><span class="toc-text"> 思考：为什么不与bert去对比？</span></a></li></ol></li></ol>
+</div></main>
+          <aside class="left-column">
+            
+            <div class="card card-author">
+              
+<img src="/imgs/AvatarMaker.png" class="author-img">
+
+<p class="author-name">Bob</p>
+<p class="author-description">Fresh NLPer</p>
+<div class="author-message">
+  <a class="author-posts-count" href="/archives">
+    <span>8</span>
+    <span>文章</span>
+  </a>
+  <a class="author-categories-count" href="/categories">
+    <span>0</span>
+    <span>分类</span>
+  </a>
+  <a class="author-tags-count" href="/tags">
+    <span>11</span>
+    <span>标签</span>
+  </a>
+</div>
+
+            </div>
+            
+            <div class="sticky-tablet">
+  
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#abstract"><span class="toc-text"> Abstract：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%B9%E8%BF%9B%E7%82%B9"><span class="toc-text"> 改进点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81%E7%9A%84%E7%BC%BA%E9%99%B7%E5%92%8C%E6%94%B9%E8%BF%9B"><span class="toc-text"> 位置编码的缺陷和改进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#attention%E7%9A%84scale%E6%98%AF%E5%90%A6%E5%BF%85%E8%A6%81"><span class="toc-text"> Attention的scale是否必要</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-text"> 实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%80%83%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%B8%8Ebert%E5%8E%BB%E5%AF%B9%E6%AF%94"><span class="toc-text"> 思考：为什么不与bert去对比？</span></a></li></ol></li></ol>
+    </div>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="categories-card">
+  <div class="categories-header"><i class="iconfont icon-fenlei" style="padding-right: 2px;"></i>分类</div>
+  <div class="categories-list">
+    
+  </div>
+</div>
+  </article>
+  
+  <article class="card card-content">
+    <div class="tags-card">
+  <div class="tags-header"><i class="iconfont icon-biaoqian" style="padding-right: 2px;"></i>热门标签</div>
+  <div class="tags-list">
+    
+    <a href="\tags\git" title="git"><div class="tags-list-item">git</div></a>
+    
+    <a href="\tags\Hexo" title="Hexo"><div class="tags-list-item">Hexo</div></a>
+    
+    <a href="\tags\github" title="github"><div class="tags-list-item">github</div></a>
+    
+    <a href="\tags\self-attention" title="self-attention"><div class="tags-list-item">self-attention</div></a>
+    
+    <a href="\tags\transformer" title="transformer"><div class="tags-list-item">transformer</div></a>
+    
+    <a href="\tags\NER" title="NER"><div class="tags-list-item">NER</div></a>
+    
+    <a href="\tags\知识图谱" title="知识图谱"><div class="tags-list-item">知识图谱</div></a>
+    
+    <a href="\tags\Gremlin" title="Gremlin"><div class="tags-list-item">Gremlin</div></a>
+    
+    <a href="\tags\Janusgraph" title="Janusgraph"><div class="tags-list-item">Janusgraph</div></a>
+    
+    <a href="\tags\Docker" title="Docker"><div class="tags-list-item">Docker</div></a>
+    
+    <a href="\tags\LSTM 时序神经网络" title="LSTM 时序神经网络"><div class="tags-list-item">LSTM 时序神经网络</div></a>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+          <aside class="right-column">
+            <div class="sticky-widescreen">
+  
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#abstract"><span class="toc-text"> Abstract：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%B9%E8%BF%9B%E7%82%B9"><span class="toc-text"> 改进点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%8D%E7%BD%AE%E7%BC%96%E7%A0%81%E7%9A%84%E7%BC%BA%E9%99%B7%E5%92%8C%E6%94%B9%E8%BF%9B"><span class="toc-text"> 位置编码的缺陷和改进</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#attention%E7%9A%84scale%E6%98%AF%E5%90%A6%E5%BF%85%E8%A6%81"><span class="toc-text"> Attention的scale是否必要</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-text"> 实验</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%80%83%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E4%B8%8Ebert%E5%8E%BB%E5%AF%B9%E6%AF%94"><span class="toc-text"> 思考：为什么不与bert去对比？</span></a></li></ol></li></ol>
+  </article>
+  
+  
+  <article class="card card-content">
+    <div class="recent-posts-card">
+  <div class="recent-posts-header"><i class="iconfont icon-wenzhang_huaban" style="padding-right: 2px;"></i>最近文章</div>
+  <div class="recent-posts-list">
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/TENER Adapting Transformer Encoder for Named Entity Recognition 读书笔记/"><div class="recent-posts-item-content">TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/Janusgraph Gremlin 使用/"><div class="recent-posts-item-content">Janusgraph和Gremlin的一些使用经验</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/LSTM的一些tips/"><div class="recent-posts-item-content">LSTM的一些tips</div></a>
+      </div>
+    
+      <div class="recent-posts-item">
+        <div class="recent-posts-item-title">2021-01-23</div>
+        <a href="/2021/01/23/Docker创建和部署/"><div class="recent-posts-item-content">Docker创建和部署</div></a>
+      </div>
+    
+  </div>
+</div>
+  </article>
+  
+  
+</div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <footer class="footer">
+  <div class="footer-container">
+    <div>
+      <div class="footer-dsc">
+        <span>Copyright ©
+          
+          2021 -
+          
+          2021
+        </span>
+        <a href="/" class="footer-link">沉默者之说 </a>
+      </div>
+    </div>
+
+    
+    <div class="footer-dsc">
+      
+      
+      Powered by
+      <a href="https://hexo.io/" class="footer-link" target="_blank" rel="nofollow noopener noreferrer">&nbsp;Hexo </a>
+      
+      
+      <span>&nbsp;|&nbsp;</span>
+      
+      
+      
+      Theme -
+      <a href="https://github.com/theme-kaze" class="footer-link" target="_blank"
+        rel="nofollow noopener noreferrer">&nbsp;Kaze</a>
+      
+    </div>
+    
+    
+    
+    
+      <div class="footer-dsc">
+        
+        本站总访问量<span id="busuanzi_value_site_pv"></span>次
+        
+        
+        <span>&nbsp;|&nbsp;</span>
+        
+        
+        本站总访客数<span id="busuanzi_value_site_uv"></span>次
+        
+      </div>
+      
+    
+</footer>
+  <a role="button" id="scrollbutton" class="basebutton" >
+  <i class="iconfont icon-arrowleft button-icon"></i>
+</a>
+<a role="button" id="menubutton" class="basebutton">
+  <i class="iconfont icon-menu button-icon"></i>
+</a>
+<a role="button" id="popbutton" class="basebutton">
+  <i class="iconfont icon-expand button-icon"></i>
+</a>
+<a role="button" id="darkbutton" class="basebutton darkwidget">
+  <i class="iconfont icon-weather button-icon"></i>
+</a>
+
+  
+  
+  
+
+  
+  
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
+  
+
+  
+  
+  <script>
+  var addImgLayout = function () {
+    var img = document.querySelectorAll('.post-content img');
+    var i;
+    for (i = 0; i < img.length; i++) {
+      var wrapper = document.createElement('a');
+      wrapper.setAttribute('data-fslightbox', 'gallery');
+      wrapper.setAttribute('href', img[i].getAttribute('data-src'));
+      wrapper.setAttribute('style', 'width: 100%; display: flex; justify-content: center;');
+      img[i].parentElement.insertBefore(wrapper, img[i]);
+      wrapper.appendChild(img[i]);
+    }
+    refreshFsLightbox();
+  }
+</script>
+<script>loadScript("//cdn.jsdelivr.net/npm/fslightbox@3.1.0/index.min.js", addImgLayout)</script>
+  
+  
+  
+<script src="/js/main.js"></script>
+
+  
+  <script>loadScript("/js/lib/busuanzi.min.js")</script>
+  
+  
+  <script>
+    var addLazyload = function () {
+      var observer = lozad('.lozad', {
+        load: function (el) {
+          el.srcset = el.getAttribute('data-src');
+        },
+        loaded: function (el) {
+          el.classList.add('loaded');
+        }
+      });
+      observer.observe();
+    }
+  </script>
+  <script>loadScript("/js/lib/lozad.min.js", addLazyload)</script>
+  
+  
+</body>
+
+</html>

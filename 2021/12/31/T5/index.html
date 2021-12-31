@@ -134,25 +134,101 @@
     <div class="section-wrap">
       <div class="container">
         <div class="columns">
-          <main class="main-column"><div class="card card-content tag-page-card">
-  <div class="tags-page-title">标签&nbsp-&nbspNER</div>
-</div>
-<div class="archive-timeline">
-  
-  
+          <main class="main-column">
+<article class="card card-content">
+  <header>
+    <h1 class="post-title">
+      T5模型调研
+    </h1>
+  </header>
+  <div class="post-meta post-show-meta">
+    <time datetime="2021-12-31T13:22:11.000Z" style="display: flex; align-items: center;">
+      <i class="iconfont icon-calendar" style="margin-right: 2px;"></i>
+      <span>2021-12-31</span>
+    </time>
     
-      <div class="archive-timeline-tag"><span>2021</span></div>
+    
+    <span class="dot"></span>
+    <span>641 字</span>
+    
+  </div>
+  
+  <div class="post-meta post-show-meta" style="margin-top: -10px;">
+    <div style="display: flex; align-items: center;">
+      <i class="iconfont icon-biaoqian" style="margin-right: 2px; font-size: 1.15rem;"></i>
       
-    
-    <div class="archive-timeline-item">
-      <div class="archive-timeline-post">
-        <div class="card card-content">
-          <div class="archive-timeline-post-date">2021-01-23</div>
-          <div class="archive-timeline-post-content"><a href="/2021/01/23/TENER Adapting Transformer Encoder for Named Entity Recognition 读书笔记/" class="archive-timeline-post-item">TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记</a></div>
-        </div>
-      </div>
+      
+        <a href="/tags/T5-NLG-NLU/" class="post-meta-link">T5, NLG, NLU</a>
+      
     </div>
+  </div>
   
+  </header>
+  <div id="section" class="post-content">
+    <p>T5是Text-to-Text Transfer Transformer的简称，是google于2020年提出的一个新的基于transformer的模型结构，目的在于将所有自然语言任务统一转化为文本生成问题。为了获得更好的效果，在文章中，作者在模型结构、预训练方式的方面进行了实验探索，确定了最好的模型设计。</p>
+<p><img src="/imgs%5CT5%E6%A8%A1%E5%9E%8B%E8%B0%83%E7%A0%94.assets%5Cimage-20210825160300395.png" alt="image-20210825160300395" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs%5CT5%E6%A8%A1%E5%9E%8B%E8%B0%83%E7%A0%94.assets%5Cimage-20210825160300395.png" class="lozad post-image"></p>
+<h2 id="基本结构"><a class="markdownIt-Anchor" href="#基本结构"></a> 基本结构</h2>
+<p>在设计T5时，作者考虑了三种模型结构：</p>
+<p><img src="/imgs%5CT5%E6%A8%A1%E5%9E%8B%E8%B0%83%E7%A0%94.assets%5Cimage-20210825160403064.png" alt="image-20210825160403064" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs%5CT5%E6%A8%A1%E5%9E%8B%E8%B0%83%E7%A0%94.assets%5Cimage-20210825160403064.png" class="lozad post-image"></p>
+<p>第一种是经典的transformer结构，encode和decode的结合。第二种类似于GPT2，用decode的mask结构做语言模型的训练，第三种是unilm的方式，输入端采用fully visible的mask方案，输出端采用单向mask结构。</p>
+<p>经过测试发现，左侧的Encoder-Decoder结构最好，故在后续实验中都采用这种结构。</p>
+<p>相对于经典的transformer结构，T5取消了LN bias，并且引入了不同position embedding（加入相对位置嵌入，且是可学习的位置embedding），<strong>LN放在了残差连接路径的外面？(PreLN)</strong></p>
+<h2 id="无监督任务"><a class="markdownIt-Anchor" href="#无监督任务"></a> 无监督任务</h2>
+<p>为了更好地在不同任务中获得好的效果，GPT2、Bert等预训练模型已经证明通过预训练任务将语义知识融合到模型中可以极大地提高模型在下游任务中的表现。</p>
+<p><img src="/imgs%5CT5%E6%A8%A1%E5%9E%8B%E8%B0%83%E7%A0%94.assets%5Cimage-20210825160811631.png" alt="image-20210825160811631" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs%5CT5%E6%A8%A1%E5%9E%8B%E8%B0%83%E7%A0%94.assets%5Cimage-20210825160811631.png" class="lozad post-image"></p>
+<p>在T5设计的baseline中，预训练任务对输入中的随机一段span tokens用sential token进行替换，让decode部分预测生成被替换的span tokens，如上图所示。随机替换概率为15%，与bert一样。</p>
+<p>在进行探索对比时，作者设计了另外三种不同的预训练方法，</p>
+<ul>
+<li>第一种是将一段话截成两段，输入第一段，让模型输出第二段</li>
+<li>第二种是Bert预训练任务的修改，对输入句子进行和Bert一样的随机mask修改后输入模型，让模型输出原句子。</li>
+<li>第三种是Deshuffling，将句子打乱后输入模型，让模型输出原句。</li>
+</ul>
+<p>经过实验检验，第二种最好。</p>
+<p>对于第二种Bert-style的预训练方式，作者还设计了三种简化方式，</p>
+<ul>
+<li>第一种是只用mask替换，也就是取消了bert中的20%的随机词替换或者不替换步骤。</li>
+<li>第二种即上述的baseline方式</li>
+<li>第三种是不替换，直接drop后让模型输出原文</li>
+</ul>
+<p>三者差不多，但第二种相对更好点。</p>
+<p>对于corrupting rate和span length的选取上作者也进行了实验，最优参数分别为15%和3.</p>
+
+  </div>
+  <div>
+  
+  <div class="post-note note-warning copyright" style="margin-top: 42px">
+    <p><span style="font-weight: bold;">作者：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://boxiaowave.github.io/about">Sammuel Siu</a></p>
+    <p><span style="font-weight: bold;">文章链接：</span><a target="_blank" rel="nofollow noopener noreferrer" href="http://boxiaowave.github.io/2021/12/31/T5/">http://boxiaowave.github.io/2021/12/31/T5/</a></p>
+    <p><span style="font-weight: bold;">版权声明：</span>本博客所有文章除特别声明外，均采用<a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh">CC BY-NC-SA 4.0 协议</a>。转载请注明出处！</p>
+  </div>
+  
+  </div>
+</article>
+<div class="nav">
+  
+  
+  <div class="nav-item-next">
+    <a href="/2021/01/23/TENER Adapting Transformer Encoder for Named Entity Recognition 读书笔记/" class="nav-link">
+      <div>
+        <div class="nav-label">下一篇</div>
+        
+        <div class="nav-title">TENER: Adapting Transformer Encoder for Named Entity Recognition 读书笔记 </div>
+        
+      </div>
+      <i class="iconfont icon-right nav-next-icon"></i>
+    </a>
+  </div>
+  
+</div>
+
+<div class="card card-content comment-card" style="margin-top: 16px;">
+  <div class="comment-card-title">评论</div>
+  
+</div>
+
+<div class="card card-content toc-card" id="mobiletoc">
+  <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text"> 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E7%9B%91%E7%9D%A3%E4%BB%BB%E5%8A%A1"><span class="toc-text"> 无监督任务</span></a></li></ol>
 </div></main>
           <aside class="left-column">
             
@@ -181,6 +257,13 @@
             
             <div class="sticky-tablet">
   
+  
+  <article class="display-when-two-columns spacer">
+    <div class="card card-content toc-card">
+      <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text"> 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E7%9B%91%E7%9D%A3%E4%BB%BB%E5%8A%A1"><span class="toc-text"> 无监督任务</span></a></li></ol>
+    </div>
+  </article>
   
   
   <article class="card card-content">
@@ -226,80 +309,16 @@
   </article>
   
   
-  <article class="card card-content widescreen-archive">
-    <div class="archive-card">
-  <div class="archive-card-header"><i class="iconfont icon-wodebaobiao" style="padding-right: 2px;"></i>归档</div>
-  <div class="archive-card-list">
-    
-    
-    
-      
-        
-        
-        
-      
-    
-      
-        
-      
-    
-      
-        
-      
-    
-      
-        
-      
-    
-      
-        
-      
-    
-      
-        
-      
-    
-      
-        
-          <a href="/archives/2021" class="archive-card-list-item">
-              2021
-              <span class="archive-card-list-item-badge">6</span>
-          </a>
-        
-        
-        
-      
-    
-      
-        
-          <a href="/archives/2017" class="archive-card-list-item">
-              2017
-              <span class="archive-card-list-item-badge">1</span>
-          </a>
-        
-        
-        
-      
-    
-      
-        
-      
-    
-    
-      <a href="/archives/2016" class="archive-card-list-item">
-          2016
-          <span class="archive-card-list-item-badge">2</span>
-      </a>
-    
-  </div>
-</div>
-  </article>
-  
 </div>
           </aside>
           <aside class="right-column">
             <div class="sticky-widescreen">
   
+  
+  <article class="card card-content toc-card">
+    <div class="toc-header"><i class="iconfont icon-menu" style="padding-right: 2px;"></i>目录</div>
+<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%BB%93%E6%9E%84"><span class="toc-text"> 基本结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E7%9B%91%E7%9D%A3%E4%BB%BB%E5%8A%A1"><span class="toc-text"> 无监督任务</span></a></li></ol>
+  </article>
   
   
   <article class="card card-content">
@@ -331,75 +350,6 @@
 </div>
   </article>
   
-  
-  <article class="card card-content">
-    <div class="archive-card">
-  <div class="archive-card-header"><i class="iconfont icon-wodebaobiao" style="padding-right: 2px;"></i>归档</div>
-  <div class="archive-card-list">
-    
-    
-    
-      
-        
-        
-        
-      
-    
-      
-        
-      
-    
-      
-        
-      
-    
-      
-        
-      
-    
-      
-        
-      
-    
-      
-        
-      
-    
-      
-        
-          <a href="/archives/2021" class="archive-card-list-item">
-              2021
-              <span class="archive-card-list-item-badge">6</span>
-          </a>
-        
-        
-        
-      
-    
-      
-        
-          <a href="/archives/2017" class="archive-card-list-item">
-              2017
-              <span class="archive-card-list-item-badge">1</span>
-          </a>
-        
-        
-        
-      
-    
-      
-        
-      
-    
-    
-      <a href="/archives/2016" class="archive-card-list-item">
-          2016
-          <span class="archive-card-list-item-badge">2</span>
-      </a>
-    
-  </div>
-</div>
-  </article>
   
 </div>
           </aside>
@@ -472,6 +422,13 @@
 
   
   
+  
+
+  
+  
+    
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css">
+
   
 
   

@@ -166,16 +166,16 @@
   </header>
   <div id="section" class="post-content">
     <p>T5是Text-to-Text Transfer Transformer的简称，是google于2020年提出的一个新的基于transformer的模型结构，目的在于将所有自然语言任务统一转化为文本生成问题。为了获得更好的效果，在文章中，作者在模型结构、预训练方式的方面进行了实验探索，确定了最好的模型设计。</p>
-<p><img src="/imgs%5CT5search%5Cimage-20210825160300395.png" alt="image-20210825160300395" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs%5CT5search%5Cimage-20210825160300395.png" class="lozad post-image"></p>
+<p><img src="/imgs/T5search/image-20210825160300395.png" alt="image-20210825160300395" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/T5search/image-20210825160300395.png" class="lozad post-image"></p>
 <h2 id="基本结构"><a class="markdownIt-Anchor" href="#基本结构"></a> 基本结构</h2>
 <p>在设计T5时，作者考虑了三种模型结构：</p>
-<p><img src="/imgs%5CT5search%5Cimage-20210825160403064.png" alt="image-20210825160403064" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs%5CT5search%5Cimage-20210825160403064.png" class="lozad post-image"></p>
+<p><img src="/imgs/T5search/image-20210825160403064.png" alt="image-20210825160403064" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/T5search/image-20210825160403064.png" class="lozad post-image"></p>
 <p>第一种是经典的transformer结构，encode和decode的结合。第二种类似于GPT2，用decode的mask结构做语言模型的训练，第三种是unilm的方式，输入端采用fully visible的mask方案，输出端采用单向mask结构。</p>
 <p>经过测试发现，左侧的Encoder-Decoder结构最好，故在后续实验中都采用这种结构。</p>
 <p>相对于经典的transformer结构，T5取消了LN bias，并且引入了不同position embedding（加入相对位置嵌入，且是可学习的位置embedding），<strong>LN放在了残差连接路径的外面？(PreLN)</strong></p>
 <h2 id="无监督任务"><a class="markdownIt-Anchor" href="#无监督任务"></a> 无监督任务</h2>
 <p>为了更好地在不同任务中获得好的效果，GPT2、Bert等预训练模型已经证明通过预训练任务将语义知识融合到模型中可以极大地提高模型在下游任务中的表现。</p>
-<p><img src="/imgs%5CT5search%5Cimage-20210825160811631.png" alt="image-20210825160811631" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs%5CT5search%5Cimage-20210825160811631.png" class="lozad post-image"></p>
+<p><img src="/imgs/T5search/image-20210825160811631.png" alt="image-20210825160811631" / srcset="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20300%20300'%3E%3C/svg%3E" data-src="/imgs/T5search/image-20210825160811631.png" class="lozad post-image"></p>
 <p>在T5设计的baseline中，预训练任务对输入中的随机一段span tokens用sential token进行替换，让decode部分预测生成被替换的span tokens，如上图所示。随机替换概率为15%，与bert一样。</p>
 <p>在进行探索对比时，作者设计了另外三种不同的预训练方法，</p>
 <ul>
